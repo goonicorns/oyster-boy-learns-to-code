@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dev Cheatsheet</title>
+<style>
+  :root[data-theme="dark"] {
+    --bg:         #002b36;
+    --bg-hi:      #073642;
+    --bg-hi2:     #0a3d4a;
+    --fg:         #839496;
+    --fg-em:      #93a1a1;
+    --fg-strong:  #eee8d5;
+    --comment:    #586e75;
+    --yellow:     #b58900;
+    --orange:     #cb4b16;
+    --red:        #dc322f;
+    --magenta:    #d33682;
+    --violet:     #6c71c4;
+    --blue:       #268bd2;
+    --cyan:       #2aa198;
+    --green:      #859900;
+    --border:     #073642;
+    --code-bg:    #073642;
+    --warn-bg:    #1a0800;
+    --warn-bdr:   #cb4b16;
+    --warn-fg:    #dc322f;
+    --kbd-bg:     #073642;
+    --kbd-bdr:    #586e75;
+    --kbd-fg:     #93a1a1;
+    --tip-bdr:    #268bd2;
+    --tip-bg:     #002233;
+  }
+  :root[data-theme="light"] {
+    --bg:         #fdf6e3;
+    --bg-hi:      #eee8d5;
+    --bg-hi2:     #e5dcc8;
+    --fg:         #657b83;
+    --fg-em:      #586e75;
+    --fg-strong:  #073642;
+    --comment:    #93a1a1;
+    --yellow:     #b58900;
+    --orange:     #cb4b16;
+    --red:        #dc322f;
+    --magenta:    #d33682;
+    --violet:     #6c71c4;
+    --blue:       #268bd2;
+    --cyan:       #2aa198;
+    --green:      #859900;
+    --border:     #ddd8c8;
+    --code-bg:    #eee8d5;
+    --warn-bg:    #fff3e0;
+    --warn-bdr:   #cb4b16;
+    --warn-fg:    #cb4b16;
+    --kbd-bg:     #eee8d5;
+    --kbd-bdr:    #b0a890;
+    --kbd-fg:     #586e75;
+    --tip-bdr:    #268bd2;
+    --tip-bg:     #eef6fb;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, 'Liberation Mono', monospace;
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.65;
+    font-size: 14px;
+    display: flex;
+    min-height: 100vh;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  /* ── SIDEBAR ─────────────────────────────────────────────── */
+  .sidebar {
+    width: 230px;
+    min-width: 230px;
+    background: var(--bg-hi);
+    border-right: 1px solid var(--border);
+    padding: 24px 12px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex-shrink: 0;
+  }
+
+  .sidebar-title {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    padding: 0 6px;
+    margin-bottom: 18px;
+    font-weight: bold;
+  }
+
+  .sidebar nav a {
+    display: block;
+    text-decoration: none;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin: 1px 0;
+    font-size: 12px;
+    transition: background 0.1s, color 0.1s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sidebar nav a.sec {
+    color: var(--blue);
+    font-weight: bold;
+    margin-top: 14px;
+    margin-bottom: 3px;
+    font-size: 13px;
+  }
+
+  .sidebar nav a.sub {
+    color: var(--fg);
+    padding-left: 18px;
+    font-size: 12px;
+  }
+
+  .sidebar nav a.warn-link {
+    color: var(--orange);
+  }
+
+  .sidebar nav a:hover {
+    background: var(--bg);
+    color: var(--fg-strong);
+  }
+
+  .theme-btn {
+    margin-top: 22px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .theme-btn button {
+    width: 100%;
+    background: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    padding: 7px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .theme-btn button:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+  }
+
+  /* ── MAIN CONTENT ────────────────────────────────────────── */
+  main {
+    flex: 1;
+    padding: 44px 56px;
+    max-width: 960px;
+    overflow-x: auto;
+  }
+
+  section {
+    margin-bottom: 80px;
+  }
+
+  section > h2 {
+    font-size: 26px;
+    color: var(--blue);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 12px;
+    margin-bottom: 30px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-size: 16px;
+    color: var(--cyan);
+    margin: 32px 0 12px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h4 {
+    font-size: 13px;
+    color: var(--yellow);
+    margin: 20px 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  p {
+    margin-bottom: 12px;
+    color: var(--fg);
+    line-height: 1.7;
+  }
+
+  /* ── CODE BLOCKS ─────────────────────────────────────────── */
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    margin: 14px 0;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+
+  code {
+    font-family: inherit;
+  }
+
+  p code, li code, td code {
+    background: var(--code-bg);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.9em;
+    color: var(--green);
+    border: 1px solid var(--border);
+  }
+
+  /* Syntax highlight classes */
+  .kw   { color: var(--green); font-weight: bold; }
+  .fn   { color: var(--blue); }
+  .str  { color: var(--cyan); }
+  .num  { color: var(--magenta); }
+  .cmt  { color: var(--comment); font-style: italic; }
+  .typ  { color: var(--yellow); }
+  .pkg  { color: var(--orange); }
+  .op   { color: var(--fg-em); }
+
+  /* ── KEYBOARD KEYS ───────────────────────────────────────── */
+  kbd {
+    display: inline-block;
+    background: var(--kbd-bg);
+    border: 1px solid var(--kbd-bdr);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-size: 12px;
+    color: var(--kbd-fg);
+    font-family: inherit;
+    box-shadow: 0 1px 0 var(--kbd-bdr);
+    white-space: nowrap;
+    line-height: 1.6;
+  }
+
+  /* ── TABLES ──────────────────────────────────────────────── */
+  .ct {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 12.5px;
+  }
+
+  .ct th {
+    text-align: left;
+    color: var(--fg-em);
+    padding: 5px 14px;
+    border-bottom: 2px solid var(--border);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+
+  .ct td {
+    padding: 6px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.55;
+  }
+
+  .ct td:first-child {
+    color: var(--green);
+    white-space: nowrap;
+    font-size: 12.5px;
+    width: 1%;
+  }
+
+  .ct td:last-child {
+    color: var(--fg);
+  }
+
+  .ct tr:hover td {
+    background: var(--bg-hi2);
+  }
+
+  .ct.keys td:first-child {
+    white-space: nowrap;
+  }
+
+  /* ── CALLOUTS ────────────────────────────────────────────── */
+  .danger {
+    background: var(--warn-bg);
+    border: 2px solid var(--warn-bdr);
+    border-radius: 6px;
+    padding: 18px 22px;
+    margin: 20px 0;
+  }
+
+  .danger-hdr {
+    color: var(--warn-fg);
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 12px;
+    letter-spacing: 0.03em;
+  }
+
+  .danger p, .danger li { color: var(--fg-em); font-size: 13px; }
+  .danger h4 { color: var(--orange); margin-top: 16px; }
+  .danger pre { background: rgba(0,0,0,0.25); border-color: var(--warn-bdr); }
+  .danger .ct td:first-child { color: var(--warn-fg); }
+  .danger .ct tr:hover td { background: rgba(255,255,255,0.03); }
+
+  .tip {
+    background: var(--tip-bg);
+    border-left: 3px solid var(--tip-bdr);
+    padding: 12px 16px;
+    margin: 14px 0;
+    font-size: 13px;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .tip strong { color: var(--blue); }
+
+  ul, ol { padding-left: 22px; margin-bottom: 12px; }
+  li { margin-bottom: 5px; line-height: 1.6; }
+
+  strong { color: var(--fg-strong); }
+
+  .intro {
+    color: var(--fg-em);
+    font-size: 13.5px;
+    margin-bottom: 24px;
+    line-height: 1.75;
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     SIDEBAR
+══════════════════════════════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-title">Dev Cheatsheet</div>
+  <nav>
+    <a class="sec" href="#shell">Unix Shell</a>
+    <a class="sub" href="#shell-nav">Navigation</a>
+    <a class="sub" href="#shell-files">File Operations</a>
+    <a class="sub warn-link" href="#shell-danger">⚠ Danger Zone</a>
+    <a class="sub" href="#shell-perms">Permissions</a>
+    <a class="sub" href="#shell-search">Searching</a>
+    <a class="sub" href="#shell-pipes">Pipes &amp; Redirects</a>
+    <a class="sub" href="#shell-process">Processes</a>
+    <a class="sub" href="#shell-env">Environment</a>
+    <a class="sub" href="#shell-shortcuts">Shortcuts</a>
+
+    <a class="sec" href="#tmux">Tmux</a>
+    <a class="sub" href="#tmux-sessions">Sessions</a>
+    <a class="sub" href="#tmux-windows">Windows</a>
+    <a class="sub" href="#tmux-panes">Panes</a>
+    <a class="sub" href="#tmux-copy">Copy Mode</a>
+
+    <a class="sec" href="#golang">Golang</a>
+    <a class="sub" href="#go-howcode">How Code Works</a>
+    <a class="sub" href="#go-hello">Hello World</a>
+    <a class="sub" href="#go-vars">Variables</a>
+    <a class="sub" href="#go-types">Types</a>
+    <a class="sub" href="#go-control">Control Flow</a>
+    <a class="sub" href="#go-funcs">Functions</a>
+    <a class="sub" href="#go-slices">Slices</a>
+    <a class="sub" href="#go-maps">Maps</a>
+    <a class="sub" href="#go-structs">Structs</a>
+    <a class="sub" href="#go-interfaces">Interfaces</a>
+    <a class="sub" href="#go-errors">Error Handling</a>
+    <a class="sub" href="#go-goroutines">Goroutines</a>
+    <a class="sub" href="#go-channels">Channels</a>
+    <a class="sub" href="#go-packages">Packages</a>
+    <a class="sub" href="#go-json">JSON</a>
+
+    <a class="sec" href="#emacs">Emacs</a>
+    <a class="sub" href="#emacs-basics">Basics &amp; Notation</a>
+    <a class="sub" href="#emacs-movement">Movement</a>
+    <a class="sub" href="#emacs-files">Files &amp; Buffers</a>
+    <a class="sub" href="#emacs-windows">Windows</a>
+    <a class="sub" href="#emacs-editing">Editing</a>
+    <a class="sub" href="#emacs-search">Search &amp; Replace</a>
+    <a class="sub" href="#emacs-dired">Dired</a>
+    <a class="sub warn-link" href="#emacs-danger">⚠ Danger Zone</a>
+  </nav>
+  <div class="theme-btn">
+    <button onclick="toggleTheme()">Toggle Light / Dark</button>
+  </div>
+</aside>
+
+<!-- ══════════════════════════════════════════════════════════
+     MAIN CONTENT
+══════════════════════════════════════════════════════════════ -->
+<main>
+
+<!-- ────────────────────────────────────────────────────────── -->
+<!--  SECTION 1 — UNIX SHELL                                    -->
+<!-- ────────────────────────────────────────────────────────── -->
+<section id="shell">
+<h2>Unix Shell</h2>
+<p class="intro">The shell is how you talk to your computer in text. You type commands, press Enter, and the computer does exactly what you asked — including things you didn't mean. That's what makes it powerful and occasionally dangerous. Take it slow at first.</p>
+
+<h3 id="shell-nav">Navigation</h3>
+<p>Your files live in a tree of folders. <code>~</code> is your home directory (e.g. <code>/Users/yourname</code>). <code>/</code> is the root — the top of the whole tree. <code>.</code> means "right here." <code>..</code> means "one level up."</p>
+
+<table class="ct">
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td>pwd</td><td>Print where you are right now (Print Working Directory)</td></tr>
+  <tr><td>ls</td><td>List files in the current folder</td></tr>
+  <tr><td>ls -la</td><td>List everything including hidden files, with all details</td></tr>
+  <tr><td>ls -lh</td><td>List files with human-readable sizes (KB, MB instead of bytes)</td></tr>
+  <tr><td>cd foldername</td><td>Move into a folder</td></tr>
+  <tr><td>cd ..</td><td>Go up one folder</td></tr>
+  <tr><td>cd ~</td><td>Go to your home directory</td></tr>
+  <tr><td>cd /</td><td>Go to the very top of the filesystem</td></tr>
+  <tr><td>cd -</td><td>Jump back to wherever you just were</td></tr>
+  <tr><td>mkdir foldername</td><td>Create a new folder</td></tr>
+  <tr><td>mkdir -p a/b/c</td><td>Create nested folders all at once (makes all parents too)</td></tr>
+  <tr><td>rmdir foldername</td><td>Remove an empty folder (only works if it's empty)</td></tr>
+</table>
+
+<h3 id="shell-files">File Operations</h3>
+
+<table class="ct">
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td>touch file.txt</td><td>Create an empty file (if it already exists, updates its timestamp)</td></tr>
+  <tr><td>cat file.txt</td><td>Print the whole file to screen</td></tr>
+  <tr><td>less file.txt</td><td>Read a big file page by page — arrows to scroll, <kbd>q</kbd> to quit</td></tr>
+  <tr><td>head -n 20 file.txt</td><td>Show the first 20 lines</td></tr>
+  <tr><td>tail -n 20 file.txt</td><td>Show the last 20 lines</td></tr>
+  <tr><td>tail -f file.txt</td><td>Watch a file live as new lines appear (great for logs)</td></tr>
+  <tr><td>cp source dest</td><td>Copy a file from source to dest</td></tr>
+  <tr><td>cp -r folder/ dest/</td><td>Copy an entire folder and its contents</td></tr>
+  <tr><td>mv old new</td><td>Move or rename a file or folder</td></tr>
+  <tr><td>wc -l file.txt</td><td>Count lines in a file</td></tr>
+  <tr><td>file image.jpg</td><td>Tell you what type a file is</td></tr>
+  <tr><td>stat file.txt</td><td>Show detailed info (size, created, modified, permissions)</td></tr>
+  <tr><td>open .</td><td>(macOS only) Open current folder in Finder</td></tr>
+</table>
+
+<!-- ── DANGER ZONE ── -->
+<div class="danger" id="shell-danger">
+  <div class="danger-hdr">⚠ DANGER ZONE — Shell Commands That Can Wreck Your Day</div>
+
+  <p>The shell does not have an undo button. There is no trash can. When you delete a file from the command line, it is gone. Not in Trash, not in a recycle bin — gone. Read this section carefully and refer back to it.</p>
+
+  <h4>rm — Remove Files (The Wrecking Ball)</h4>
+  <pre><span class="cmt"># Removes one file — reasonable, but still no undo</span>
+rm file.txt
+
+<span class="cmt"># -r = recursive (go into all subfolders)
+# -f = force (don't ask me, just do it, ignore errors)
+# Together: wipes out a folder and everything inside it with zero confirmation</span>
+rm -rf foldername/
+
+<span class="cmt"># CATASTROPHIC — deletes your entire home directory
+# ~ means /Users/yourname — all your files, projects, photos, everything</span>
+rm -rf ~/
+
+<span class="cmt"># SYSTEM KILLER — deletes the entire operating system
+# The computer will not boot after this</span>
+rm -rf /
+
+<span class="cmt"># Also very bad — "." means "right here"
+# This wipes out your current folder and everything in it</span>
+rm -rf .</pre>
+
+  <p><strong>Before running any <code>rm</code> command:</strong> run <code>ls</code> first to see what's there. Triple-check the path. Never use <code>-rf</code> unless you are 100% certain. If in doubt, move the folder somewhere safe first with <code>mv</code>.</p>
+
+  <h4>sudo — Running as Administrator</h4>
+  <pre><span class="cmt"># sudo = "Super User DO" — runs the command with full system privileges
+# Normal rm -rf can't hurt system files. sudo rm -rf CAN.</span>
+sudo rm -rf /etc          <span class="cmt"># Destroys system configuration</span>
+sudo chmod -R 777 /       <span class="cmt"># Removes all security from entire system</span>
+
+<span class="cmt"># Rule: never run a command with sudo that you don't fully understand.
+# Never paste sudo commands from the internet without reading every word.</span></pre>
+
+  <h4>The Fork Bomb (know what it looks like so you never run it)</h4>
+  <pre>:(){ :|:& };:   <span class="cmt"># DO NOT RUN — spawns infinite processes, crashes the machine</span></pre>
+  <p>If you ever see this in instructions from someone, close the terminal immediately. It's purely malicious. Even if told it "sets up your environment," it doesn't — it crashes your computer.</p>
+
+  <h4>Overwriting Files with Redirects</h4>
+  <pre><span class="cmt"># ">" overwrites — if the file exists, the old content is gone</span>
+echo "new content" > important-file.txt   <span class="cmt"># WIPES important-file.txt first</span>
+
+<span class="cmt"># ">>" appends — safe to add without destroying existing content</span>
+echo "new line" >> important-file.txt     <span class="cmt"># Adds to the end, nothing lost</span></pre>
+</div>
+
+<h3 id="shell-perms">Permissions</h3>
+<p>Every file has an owner and rules for who can read it, write to it, or execute it as a program.</p>
+<pre><span class="cmt"># "ls -la" shows permissions as the first column:</span>
+-rw-r--r--  1 alice  staff   1234  Jun 12  notes.txt
+drwxr-xr-x  3 alice  staff    128  Jun 12  projects/
+
+<span class="cmt"># Breaking down "-rw-r--r--":
+# First character:  "-" = file, "d" = directory, "l" = link
+# Next 3:  rw-  = what the OWNER can do (read + write, not execute)
+# Next 3:  r--  = what the GROUP can do (read only)
+# Last 3:  r--  = what EVERYONE ELSE can do (read only)
+# r = read, w = write, x = execute</span></pre>
+
+<table class="ct">
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td>chmod +x script.sh</td><td>Make a file executable (so you can run it as a program)</td></tr>
+  <tr><td>chmod -x script.sh</td><td>Remove execute permission</td></tr>
+  <tr><td>chmod 644 file.txt</td><td>Owner: read+write. Everyone else: read-only. Common for files.</td></tr>
+  <tr><td>chmod 755 folder/</td><td>Owner: full control. Others: read+enter. Common for folders.</td></tr>
+  <tr><td>chmod 600 private.key</td><td>Only the owner can read/write. Nobody else can even see it.</td></tr>
+  <tr><td>chown alice file.txt</td><td>Change who owns a file (may need sudo)</td></tr>
+  <tr><td>ls -la</td><td>See all permissions in the current folder</td></tr>
+</table>
+
+<h3 id="shell-search">Searching</h3>
+
+<table class="ct">
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td>grep "word" file.txt</td><td>Find lines containing "word" in a file</td></tr>
+  <tr><td>grep -r "word" ./</td><td>Search recursively through all files in this folder</td></tr>
+  <tr><td>grep -i "word" file.txt</td><td>Case-insensitive search</td></tr>
+  <tr><td>grep -n "word" file.txt</td><td>Show line numbers alongside results</td></tr>
+  <tr><td>grep -l "word" ./*</td><td>Only show filenames (not the matching lines)</td></tr>
+  <tr><td>grep -v "word" file.txt</td><td>Show lines that do NOT contain "word"</td></tr>
+  <tr><td>find . -name "*.go"</td><td>Find all .go files starting from the current directory</td></tr>
+  <tr><td>find . -type f -name "main*"</td><td>Find files (not folders) whose name starts with "main"</td></tr>
+  <tr><td>find . -newer file.txt</td><td>Find files modified more recently than file.txt</td></tr>
+  <tr><td>which go</td><td>Find where a program is installed</td></tr>
+  <tr><td>locate filename</td><td>Fast file search using a pre-built index (not always available)</td></tr>
+</table>
+
+<h3 id="shell-pipes">Pipes &amp; Redirects</h3>
+<p>This is where the shell gets genuinely powerful. You can chain commands together like assembly lines — the output of one becomes the input of the next.</p>
+
+<table class="ct">
+  <tr><th>Symbol</th><th>What it does</th></tr>
+  <tr><td>cmd1 | cmd2</td><td>Pipe: feed the output of cmd1 as input to cmd2</td></tr>
+  <tr><td>cmd &gt; file</td><td>Write output to file (overwrites existing content)</td></tr>
+  <tr><td>cmd &gt;&gt; file</td><td>Append output to file (doesn't destroy what's there)</td></tr>
+  <tr><td>cmd &lt; file</td><td>Feed a file's contents as input to cmd</td></tr>
+  <tr><td>cmd 2&gt; errors.txt</td><td>Write error output (stderr) to a file</td></tr>
+  <tr><td>cmd 2&gt;&amp;1</td><td>Redirect errors to same place as normal output</td></tr>
+  <tr><td>cmd 1&gt;out.txt 2&gt;err.txt</td><td>Send normal output and errors to separate files</td></tr>
+  <tr><td>cmd &amp;&gt; all.txt</td><td>Send both normal output and errors to one file</td></tr>
+</table>
+<pre><span class="cmt"># Count how many .go files exist in this folder tree</span>
+find . -name "*.go" | wc -l
+
+<span class="cmt"># Find error lines in a log, show only the last 50</span>
+cat app.log | grep "ERROR" | tail -n 50
+
+<span class="cmt"># Save a directory listing to a file</span>
+ls -la &gt; file-list.txt
+
+<span class="cmt"># Search for TODO comments across all Go files</span>
+grep -r "TODO" . --include="*.go" | sort
+
+<span class="cmt"># Count unique IP addresses that hit your server</span>
+cat access.log | awk '{print $1}' | sort | uniq -c | sort -rn | head -20</pre>
+
+<h3 id="shell-process">Process Management</h3>
+
+<table class="ct">
+  <tr><th>Command / Key</th><th>What it does</th></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd></td><td>Kill the currently running command (sends SIGINT)</td></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>Pause the current command and send it to the background</td></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>D</kbd></td><td>Send "end of input" — exits a shell or closes a program</td></tr>
+  <tr><td>ps aux</td><td>List all running processes with their IDs (PIDs)</td></tr>
+  <tr><td>ps aux | grep "go"</td><td>Find processes with "go" in the name</td></tr>
+  <tr><td>top</td><td>Live dashboard of all running processes (q to quit)</td></tr>
+  <tr><td>htop</td><td>Better version of top — if installed</td></tr>
+  <tr><td>kill 1234</td><td>Ask process 1234 to stop politely</td></tr>
+  <tr><td>kill -9 1234</td><td>Force-kill process 1234, no questions asked</td></tr>
+  <tr><td>killall myapp</td><td>Kill all processes named "myapp"</td></tr>
+  <tr><td>bg</td><td>Resume a paused command in the background</td></tr>
+  <tr><td>fg</td><td>Bring a background command to the foreground</td></tr>
+  <tr><td>jobs</td><td>List all background jobs in this shell session</td></tr>
+  <tr><td>cmd &amp;</td><td>Start a command in the background immediately</td></tr>
+</table>
+
+<h3 id="shell-env">Environment &amp; Config</h3>
+<p>The shell has a set of variables that control how it behaves. You can read and set them.</p>
+
+<table class="ct">
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td>echo $HOME</td><td>Print your home directory path</td></tr>
+  <tr><td>echo $PATH</td><td>Show the list of places the shell looks for programs</td></tr>
+  <tr><td>echo $USER</td><td>Print your username</td></tr>
+  <tr><td>export NAME=value</td><td>Set an environment variable for this session</td></tr>
+  <tr><td>unset NAME</td><td>Delete an environment variable</td></tr>
+  <tr><td>env</td><td>List all environment variables</td></tr>
+  <tr><td>source ~/.zshrc</td><td>Reload your shell config without restarting the terminal</td></tr>
+  <tr><td>source ~/.bashrc</td><td>Same but for bash</td></tr>
+  <tr><td>history</td><td>Show your command history</td></tr>
+  <tr><td>!!</td><td>Re-run the last command</td></tr>
+  <tr><td>!123</td><td>Re-run command #123 from history</td></tr>
+</table>
+
+<h3 id="shell-shortcuts">Keyboard Shortcuts</h3>
+
+<table class="ct">
+  <tr><th>Key</th><th>What it does</th></tr>
+  <tr><td><kbd>Tab</kbd></td><td>Autocomplete — works for commands, file names, and paths</td></tr>
+  <tr><td><kbd>Tab Tab</kbd></td><td>Show all possible completions when there are multiple</td></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>R</kbd></td><td>Search your history (type to filter, Enter to run)</td></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>L</kbd></td><td>Clear the screen (same as the <code>clear</code> command)</td></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd></td><td>Jump to the beginning of the line</td></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>E</kbd></td><td>Jump to the end of the line</td></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>W</kbd></td><td>Delete the word before the cursor</td></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>U</kbd></td><td>Delete everything from cursor to start of line</td></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>K</kbd></td><td>Delete everything from cursor to end of line</td></tr>
+  <tr><td><kbd>Alt</kbd>+<kbd>←</kbd></td><td>Jump back one word</td></tr>
+  <tr><td><kbd>Alt</kbd>+<kbd>→</kbd></td><td>Jump forward one word</td></tr>
+  <tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>Navigate through previous commands</td></tr>
+</table>
+</section>
+
+<!-- ────────────────────────────────────────────────────────── -->
+<!--  SECTION 2 — TMUX                                          -->
+<!-- ────────────────────────────────────────────────────────── -->
+<section id="tmux">
+<h2>Tmux</h2>
+<p class="intro">Tmux is a terminal multiplexer — it lets you split one terminal window into many panes, have multiple tabs (windows), and keep everything running even when you disconnect and walk away. It's like having a persistent workspace that lives on the server.</p>
+
+<div class="tip">
+  <strong>The Prefix Key:</strong> Almost every tmux command starts with pressing <kbd>Ctrl</kbd>+<kbd>B</kbd>, then releasing it, then pressing another key. This is called the prefix. So "<kbd>Ctrl+B</kbd> then <kbd>d</kbd>" means: hold Ctrl and press B, let go, then press D.
+</div>
+
+<h3 id="tmux-sessions">Sessions</h3>
+<p>A session is an entire tmux workspace. You can detach (leave it running), come back later, and everything is exactly where you left it — running programs included.</p>
+
+<table class="ct">
+  <tr><th>Command (run in your regular terminal)</th><th>What it does</th></tr>
+  <tr><td>tmux</td><td>Start a new tmux session</td></tr>
+  <tr><td>tmux new -s work</td><td>Start a new session named "work"</td></tr>
+  <tr><td>tmux ls</td><td>List all running sessions</td></tr>
+  <tr><td>tmux attach</td><td>Jump back into the most recent session</td></tr>
+  <tr><td>tmux attach -t work</td><td>Jump back into the session named "work"</td></tr>
+  <tr><td>tmux kill-session -t work</td><td>Permanently destroy the "work" session</td></tr>
+  <tr><td>tmux kill-server</td><td>Kill ALL sessions (use with care)</td></tr>
+</table>
+
+<table class="ct keys">
+  <tr><th>Key (while inside tmux)</th><th>What it does</th></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>d</kbd></td><td>Detach — leaves everything running, drops you back to normal terminal</td></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>$</kbd></td><td>Rename the current session</td></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>s</kbd></td><td>Show all sessions, switch between them with arrows + Enter</td></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>(</kbd></td><td>Switch to previous session</td></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>)</kbd></td><td>Switch to next session</td></tr>
+</table>
+
+<h3 id="tmux-windows">Windows</h3>
+<p>Windows are like browser tabs — each one has its own full terminal. The status bar at the bottom shows all open windows.</p>
+
+<table class="ct keys">
+  <tr><th>Key</th><th>What it does</th></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>c</kbd></td><td>Create a new window</td></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>n</kbd></td><td>Go to the next window</td></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>p</kbd></td><td>Go to the previous window</td></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>0–9</kbd></td><td>Jump to a specific window by its number</td></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>,</kbd></td><td>Rename the current window</td></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>&amp;</kbd></td><td>Close the current window (asks to confirm)</td></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>w</kbd></td><td>Show all windows, navigate and switch</td></tr>
+</table>
+
+<h3 id="tmux-panes">Panes</h3>
+<p>Panes split a window into multiple terminals at once. Useful for having your code, terminal, and logs all visible simultaneously.</p>
+
+<table class="ct keys">
+  <tr><th>Key</th><th>What it does</th></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>"</kbd></td><td>Split the pane top/bottom</td></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>%</kbd></td><td>Split the pane left/right</td></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>Arrow</kbd></td><td>Move to the pane in that direction</td></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>o</kbd></td><td>Cycle to the next pane</td></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>z</kbd></td><td>Zoom current pane to full screen (press again to unzoom)</td></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>x</kbd></td><td>Close the current pane (asks to confirm)</td></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>Ctrl+Arrow</kbd></td><td>Resize the current pane in that direction</td></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>q</kbd></td><td>Show pane numbers (press the number to jump to it)</td></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>{</kbd></td><td>Swap pane with the one before it</td></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>}</kbd></td><td>Swap pane with the one after it</td></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>!</kbd></td><td>Break this pane out into its own window</td></tr>
+</table>
+
+<h3 id="tmux-copy">Copy Mode</h3>
+<p>Copy mode lets you scroll back through terminal output and select text with your keyboard.</p>
+
+<table class="ct keys">
+  <tr><th>Key</th><th>What it does</th></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>[</kbd></td><td>Enter copy mode</td></tr>
+  <tr><td><kbd>q</kbd> or <kbd>Esc</kbd></td><td>Exit copy mode</td></tr>
+  <tr><td>Arrow keys</td><td>Scroll through history</td></tr>
+  <tr><td><kbd>Page Up</kbd> / <kbd>Page Down</kbd></td><td>Scroll faster</td></tr>
+  <tr><td><kbd>Ctrl+S</kbd></td><td>Search forward in scroll history</td></tr>
+  <tr><td><kbd>Space</kbd></td><td>Start selecting text</td></tr>
+  <tr><td><kbd>Enter</kbd></td><td>Copy selected text</td></tr>
+  <tr><td><kbd>Ctrl+B</kbd> then <kbd>]</kbd></td><td>Paste the copied text</td></tr>
+</table>
+</section>
+
+<!-- ────────────────────────────────────────────────────────── -->
+<!--  SECTION 3 — GOLANG                                        -->
+<!-- ────────────────────────────────────────────────────────── -->
+<section id="golang">
+<h2>Golang — Full Walkthrough</h2>
+<p class="intro">Go (also called Golang) was made by Google. It's designed to be simple and hard to screw up — if something compiles (passes Go's checker without errors), it almost always does what you expect. No hidden magic. No guessing. The compiler yells at you for unused variables, missing error checks, and weird imports — all things that would cause subtle bugs in other languages.</p>
+
+<h3 id="go-howcode">How Code Becomes a Program</h3>
+<p>Before we write a single line, you need to understand what actually happens when you "run" Go code. This part confuses beginners because it's invisible — but it's happening every time.</p>
+
+<p><strong>The problem:</strong> Your computer's CPU doesn't understand Go. It only understands raw machine instructions — a very low-level language with no concepts like "string" or "function." So how do you get from code you can read to something the CPU can execute?</p>
+
+<p><strong>The compiler:</strong> The Go compiler (the <code>go</code> program you install) reads your Go code and translates it into machine instructions your CPU understands. This process is called <em>compiling</em>. The output is a binary file — a program your computer can actually run.</p>
+
+<pre><span class="cmt"># Your Go source code (readable by you)
+# ↓
+# The Go compiler reads it and checks for errors
+# ↓
+# If there are errors, it tells you and stops
+# If there are no errors, it produces a binary file
+# ↓
+# The binary file runs on your CPU (not readable by humans)</span></pre>
+
+<p><strong>Why the compiler yells at you:</strong> Before your code can run, the compiler checks it for problems. If you use a variable you never declared, reference a function that doesn't exist, or try to add a number and a string — the compiler refuses to continue. This is actually good. It catches mistakes before they become runtime bugs (crashes or wrong output when actual users are running the program).</p>
+
+<p><strong>The two main ways to run Go:</strong></p>
+
+<table class="ct">
+  <tr><th>Command</th><th>What it does</th><th>When to use</th></tr>
+  <tr>
+    <td><code>go run main.go</code></td>
+    <td>Compiles and immediately runs — no file saved to disk</td>
+    <td>Development and testing. Fast feedback loop.</td>
+  </tr>
+  <tr>
+    <td><code>go build -o myprogram</code></td>
+    <td>Compiles and saves the result as a standalone executable file called "myprogram"</td>
+    <td>When you want to distribute or deploy the program</td>
+  </tr>
+</table>
+
+<p><strong>Modules:</strong> Go organizes projects into "modules." A module has a <code>go.mod</code> file that names the project and tracks what external packages it uses. Every Go project starts with <code>go mod init projectname</code>. Think of it as the project's ID card.</p>
+
+<pre><span class="cmt"># Start a new Go project</span>
+mkdir myproject && cd myproject
+go mod init myproject    <span class="cmt">↑ creates go.mod — run this once per project</span>
+
+<span class="cmt"># Check if Go is installed</span>
+go version               <span class="cmt">should print something like: go version go1.22 darwin/arm64</span>
+
+<span class="cmt"># Run a file directly</span>
+go run main.go
+
+<span class="cmt"># Compile to a binary</span>
+go build -o myprogram    <span class="cmt">creates ./myprogram</span>
+./myprogram              <span class="cmt">run the binary</span>
+
+<span class="cmt"># Add an external package (downloads it and adds to go.mod)</span>
+go get github.com/some/package
+
+<span class="cmt"># Format your code (always do this — Go has strict formatting rules)</span>
+go fmt ./...
+
+<span class="cmt"># Run tests</span>
+go test ./...
+
+<span class="cmt"># Check for common mistakes</span>
+go vet ./...</pre>
+
+<div class="tip"><strong>Install Go:</strong> Run <code>go version</code> to check if it's already installed. If you get "command not found", download it from golang.org and follow the install instructions for your OS. After installing, close and reopen your terminal.</div>
+
+<h3 id="go-hello">Hello World — What Every Go File Looks Like</h3>
+<pre><span class="kw">package</span> <span class="pkg">main</span>    <span class="cmt">// Every Go file starts with a package declaration.
+              // "main" is special — it's what makes this a runnable program.</span>
+
+<span class="kw">import</span> <span class="str">"fmt"</span>     <span class="cmt">// "fmt" = format. Gives us Println, Printf, Errorf, etc.
+              // Import only what you use — Go will refuse to compile if you import unused packages.</span>
+
+<span class="kw">func</span> <span class="fn">main</span>() {                      <span class="cmt">// main() is where your program starts</span>
+    fmt.<span class="fn">Println</span>(<span class="str">"Hello, World!"</span>)    <span class="cmt">// Print text followed by a newline</span>
+}</pre>
+
+<pre><span class="cmt"># Run without compiling (great for development)</span>
+go run main.go
+
+<span class="cmt"># Compile to a binary you can run anywhere</span>
+go build -o myprogram main.go
+./myprogram
+
+<span class="cmt"># Format your code automatically (always run this — Go is opinionated about formatting)</span>
+go fmt ./...</pre>
+
+<h3 id="go-vars">Variables</h3>
+<p>A variable is a named container for a value. Give it a name, put something in it, use it later.</p>
+
+<pre><span class="kw">package</span> <span class="pkg">main</span>
+
+<span class="kw">import</span> <span class="str">"fmt"</span>
+
+<span class="kw">func</span> <span class="fn">main</span>() {
+    <span class="cmt">// Long form — explicit type declaration</span>
+    <span class="kw">var</span> name  <span class="typ">string</span>  = <span class="str">"Alice"</span>
+    <span class="kw">var</span> age   <span class="typ">int</span>     = <span class="num">30</span>
+    <span class="kw">var</span> score <span class="typ">float64</span> = <span class="num">98.5</span>
+
+    <span class="cmt">// Short form — most common inside functions
+    // Go figures out the type from what you assign (:= is "declare and assign")</span>
+    city   := <span class="str">"Tokyo"</span>
+    active := <span class="kw">true</span>
+
+    <span class="cmt">// Declare multiple at once</span>
+    x, y := <span class="num">10</span>, <span class="num">20</span>
+
+    <span class="cmt">// Constants — set once, never changed</span>
+    <span class="kw">const</span> MaxRetries = <span class="num">3</span>
+    <span class="kw">const</span> Pi         = <span class="num">3.14159</span>
+    <span class="kw">const</span> AppName    = <span class="str">"MyCoolApp"</span>
+
+    fmt.<span class="fn">Println</span>(name, age, score, city, active, x, y)
+}</pre>
+
+<div class="tip"><strong>Important:</strong> Go refuses to compile if you declare a variable and never use it. This is intentional — it forces you to keep your code clean.</div>
+
+<h3 id="go-types">Types</h3>
+<p>Go cares about types — you can't mix an <code>int</code> and a <code>string</code> by accident. You have to explicitly convert.</p>
+
+<pre><span class="cmt">// ── Integers (whole numbers) ─────────────────────────────────</span>
+<span class="kw">var</span> i   <span class="typ">int</span>   = <span class="num">42</span>       <span class="cmt">// Most common. Size depends on your OS (64-bit on 64-bit machines).</span>
+<span class="kw">var</span> i32 <span class="typ">int32</span> = <span class="num">42</span>       <span class="cmt">// Always exactly 32 bits (-2B to +2B)</span>
+<span class="kw">var</span> i64 <span class="typ">int64</span> = <span class="num">42</span>       <span class="cmt">// Always 64 bits (very large range)</span>
+<span class="kw">var</span> u   <span class="typ">uint</span>  = <span class="num">42</span>       <span class="cmt">// Unsigned: no negatives, but twice the positive range</span>
+
+<span class="cmt">// ── Decimals ─────────────────────────────────────────────────</span>
+<span class="kw">var</span> f32 <span class="typ">float32</span> = <span class="num">3.14</span>   <span class="cmt">// Less precision (good enough for most things)</span>
+<span class="kw">var</span> f64 <span class="typ">float64</span> = <span class="num">3.14</span>   <span class="cmt">// More precision. Default when you write a decimal.</span>
+
+<span class="cmt">// ── Text ──────────────────────────────────────────────────────</span>
+<span class="kw">var</span> s <span class="typ">string</span> = <span class="str">"hello"</span>    <span class="cmt">// Text. Always double quotes. Can hold any Unicode.</span>
+<span class="kw">var</span> r <span class="typ">rune</span>   = <span class="str">'A'</span>       <span class="cmt">// Single character. Single quotes. (It's actually an int32 underneath.)</span>
+<span class="kw">var</span> b <span class="typ">byte</span>   = <span class="num">65</span>        <span class="cmt">// A single byte (0–255). byte = uint8.</span>
+
+<span class="cmt">// ── Boolean ───────────────────────────────────────────────────</span>
+<span class="kw">var</span> ok <span class="typ">bool</span> = <span class="kw">true</span>       <span class="cmt">// Only true or false. Never 1/0 or "yes"/"no".</span>
+
+<span class="cmt">// ── Zero values — what you get when you don't set a value ─────</span>
+<span class="kw">var</span> n   <span class="typ">int</span>     <span class="cmt">// 0</span>
+<span class="kw">var</span> f   <span class="typ">float64</span> <span class="cmt">// 0.0</span>
+<span class="kw">var</span> str <span class="typ">string</span>  <span class="cmt">// "" (empty string, not null)</span>
+<span class="kw">var</span> bl  <span class="typ">bool</span>    <span class="cmt">// false</span>
+
+<span class="cmt">// ── Converting between types (Go won't do it automatically) ───</span>
+i   = <span class="typ">int</span>(f64)             <span class="cmt">// float64 → int (chops off decimals, no rounding)</span>
+f64 = <span class="typ">float64</span>(i)           <span class="cmt">// int → float64</span>
+s   = fmt.<span class="fn">Sprintf</span>(<span class="str">"%d"</span>, i) <span class="cmt">// int → string ("42" not the number 42)</span>
+i, _ = strconv.<span class="fn">Atoi</span>(<span class="str">"42"</span>) <span class="cmt">// string → int (returns an error too, hence the _)</span></pre>
+
+<h3 id="go-control">Control Flow</h3>
+
+<h4>if / else if / else</h4>
+<pre><span class="kw">if</span> age >= <span class="num">18</span> {
+    fmt.<span class="fn">Println</span>(<span class="str">"You can vote"</span>)
+} <span class="kw">else if</span> age >= <span class="num">16</span> {
+    fmt.<span class="fn">Println</span>(<span class="str">"Almost there"</span>)
+} <span class="kw">else</span> {
+    fmt.<span class="fn">Println</span>(<span class="str">"Too young"</span>)
+}
+
+<span class="cmt">// You can initialize a variable right in the if — it only exists inside the block</span>
+<span class="kw">if</span> err := <span class="fn">doSomething</span>(); err != <span class="kw">nil</span> {
+    fmt.<span class="fn">Println</span>(<span class="str">"error:"</span>, err)
+}</pre>
+
+<h4>for — the only loop in Go (but it does everything)</h4>
+<pre><span class="cmt">// Classic counter loop</span>
+<span class="kw">for</span> i := <span class="num">0</span>; i < <span class="num">5</span>; i++ {
+    fmt.<span class="fn">Println</span>(i)  <span class="cmt">// 0 1 2 3 4</span>
+}
+
+<span class="cmt">// "While" style — just a condition, no counter</span>
+n := <span class="num">1</span>
+<span class="kw">for</span> n < <span class="num">100</span> {
+    n *= <span class="num">2</span>
+}
+
+<span class="cmt">// Infinite loop — runs forever until you break out</span>
+<span class="kw">for</span> {
+    line := <span class="fn">readLine</span>()
+    <span class="kw">if</span> line == <span class="str">"exit"</span> {
+        <span class="kw">break</span>  <span class="cmt">// exit the loop entirely</span>
+    }
+    <span class="kw">if</span> line == <span class="str">""</span> {
+        <span class="kw">continue</span>  <span class="cmt">// skip this iteration, go to next</span>
+    }
+    fmt.<span class="fn">Println</span>(line)
+}
+
+<span class="cmt">// Loop over a slice — gives you index AND value</span>
+fruits := []<span class="typ">string</span>{<span class="str">"apple"</span>, <span class="str">"banana"</span>, <span class="str">"cherry"</span>}
+<span class="kw">for</span> i, fruit := <span class="kw">range</span> fruits {
+    fmt.<span class="fn">Printf</span>(<span class="str">"%d: %s\n"</span>, i, fruit)
+}
+
+<span class="cmt">// If you only want the value, use _ to discard the index</span>
+<span class="kw">for</span> _, fruit := <span class="kw">range</span> fruits {
+    fmt.<span class="fn">Println</span>(fruit)
+}
+
+<span class="cmt">// Loop over a map (order is random every time — that's intentional in Go)</span>
+ages := <span class="kw">map</span>[<span class="typ">string</span>]<span class="typ">int</span>{<span class="str">"Alice"</span>: <span class="num">30</span>, <span class="str">"Bob"</span>: <span class="num">25</span>}
+<span class="kw">for</span> name, age := <span class="kw">range</span> ages {
+    fmt.<span class="fn">Printf</span>(<span class="str">"%s is %d\n"</span>, name, age)
+}</pre>
+
+<h4>switch</h4>
+<pre><span class="kw">switch</span> day {
+<span class="kw">case</span> <span class="str">"Monday"</span>:
+    fmt.<span class="fn">Println</span>(<span class="str">"Ugh"</span>)
+<span class="kw">case</span> <span class="str">"Friday"</span>:
+    fmt.<span class="fn">Println</span>(<span class="str">"Almost there!"</span>)
+<span class="kw">case</span> <span class="str">"Saturday"</span>, <span class="str">"Sunday"</span>:  <span class="cmt">// multiple values in one case</span>
+    fmt.<span class="fn">Println</span>(<span class="str">"Weekend!"</span>)
+<span class="kw">default</span>:
+    fmt.<span class="fn">Println</span>(<span class="str">"Somewhere in the middle"</span>)
+}
+
+<span class="cmt">// No variable — acts like an if/else chain</span>
+<span class="kw">switch</span> {
+<span class="kw">case</span> score >= <span class="num">90</span>:
+    fmt.<span class="fn">Println</span>(<span class="str">"A"</span>)
+<span class="kw">case</span> score >= <span class="num">80</span>:
+    fmt.<span class="fn">Println</span>(<span class="str">"B"</span>)
+<span class="kw">default</span>:
+    fmt.<span class="fn">Println</span>(<span class="str">"Keep studying"</span>)
+}</pre>
+
+<h3 id="go-funcs">Functions</h3>
+<pre><span class="cmt">// Basic function — takes a string, returns a string</span>
+<span class="kw">func</span> <span class="fn">greet</span>(name <span class="typ">string</span>) <span class="typ">string</span> {
+    <span class="kw">return</span> <span class="str">"Hello, "</span> + name + <span class="str">"!"</span>
+}
+
+<span class="cmt">// Multiple return values — very common in Go
+// Usually: (result, error)</span>
+<span class="kw">func</span> <span class="fn">divide</span>(a, b <span class="typ">float64</span>) (<span class="typ">float64</span>, <span class="typ">error</span>) {
+    <span class="kw">if</span> b == <span class="num">0</span> {
+        <span class="kw">return</span> <span class="num">0</span>, fmt.<span class="fn">Errorf</span>(<span class="str">"cannot divide by zero"</span>)
+    }
+    <span class="kw">return</span> a / b, <span class="kw">nil</span>   <span class="cmt">// nil = "no error"</span>
+}
+
+<span class="cmt">// Using a function with multiple returns</span>
+result, err := <span class="fn">divide</span>(<span class="num">10</span>, <span class="num">2</span>)
+<span class="kw">if</span> err != <span class="kw">nil</span> {
+    fmt.<span class="fn">Println</span>(<span class="str">"oops:"</span>, err)
+    <span class="kw">return</span>
+}
+fmt.<span class="fn">Println</span>(result)  <span class="cmt">// 5</span>
+
+<span class="cmt">// Variadic — accepts any number of arguments</span>
+<span class="kw">func</span> <span class="fn">sum</span>(nums ...<span class="typ">int</span>) <span class="typ">int</span> {
+    total := <span class="num">0</span>
+    <span class="kw">for</span> _, n := <span class="kw">range</span> nums {
+        total += n
+    }
+    <span class="kw">return</span> total
+}
+fmt.<span class="fn">Println</span>(<span class="fn">sum</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>))  <span class="cmt">// 15</span>
+
+<span class="cmt">// defer — runs at the very end of the function, no matter what
+// Great for cleanup: closing files, releasing resources</span>
+<span class="kw">func</span> <span class="fn">readFile</span>(path <span class="typ">string</span>) <span class="typ">error</span> {
+    f, err := os.<span class="fn">Open</span>(path)
+    <span class="kw">if</span> err != <span class="kw">nil</span> {
+        <span class="kw">return</span> err
+    }
+    <span class="kw">defer</span> f.<span class="fn">Close</span>()    <span class="cmt">// Will run when readFile() exits, even if it panics</span>
+
+    <span class="cmt">// ... read the file ...</span>
+    <span class="kw">return</span> <span class="kw">nil</span>
+}</pre>
+
+<h3 id="go-slices">Slices — Ordered Lists</h3>
+<p>A slice is a list that can grow. It's the most common collection type in Go.</p>
+
+<pre><span class="cmt">// Create a slice with initial values</span>
+names   := []<span class="typ">string</span>{<span class="str">"Alice"</span>, <span class="str">"Bob"</span>, <span class="str">"Charlie"</span>}
+numbers := []<span class="typ">int</span>{<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>}
+
+<span class="cmt">// Create an empty slice and add to it</span>
+<span class="kw">var</span> scores []<span class="typ">int</span>                          <span class="cmt">// nil slice (length 0)</span>
+scores = <span class="fn">append</span>(scores, <span class="num">95</span>)              <span class="cmt">// [95]</span>
+scores = <span class="fn">append</span>(scores, <span class="num">87</span>, <span class="num">92</span>)          <span class="cmt">// [95, 87, 92]</span>
+scores = <span class="fn">append</span>(scores, numbers...)       <span class="cmt">// spread another slice in</span>
+
+<span class="cmt">// Make a slice with a specific size (all zeros)</span>
+zeros := <span class="fn">make</span>([]<span class="typ">int</span>, <span class="num">5</span>)    <span class="cmt">// [0, 0, 0, 0, 0]</span>
+buf   := <span class="fn">make</span>([]<span class="typ">byte</span>, <span class="num">1024</span>) <span class="cmt">// common for buffers</span>
+
+<span class="cmt">// Access by index — starts at 0, NOT 1</span>
+first := names[<span class="num">0</span>]               <span class="cmt">// "Alice"</span>
+last  := names[<span class="fn">len</span>(names)-<span class="num">1</span>]   <span class="cmt">// "Charlie"</span>
+names[<span class="num">1</span>] = <span class="str">"Bobby"</span>              <span class="cmt">// Modify in place</span>
+
+<span class="cmt">// Slice of a slice (shares underlying memory)</span>
+sub  := numbers[<span class="num">1</span>:<span class="num">4</span>]  <span class="cmt">// [2, 3, 4]  — index 1 up to (not including) 4</span>
+head := numbers[:<span class="num">3</span>]   <span class="cmt">// [1, 2, 3]  — from beginning to index 3</span>
+tail := numbers[<span class="num">2</span>:]   <span class="cmt">// [3, 4, 5]  — from index 2 to end</span>
+copy := numbers[:]     <span class="cmt">// full copy-reference of the slice</span>
+
+<span class="cmt">// Length and capacity</span>
+fmt.<span class="fn">Println</span>(<span class="fn">len</span>(names))  <span class="cmt">// 3 — how many elements are in it</span>
+fmt.<span class="fn">Println</span>(<span class="fn">cap</span>(names))  <span class="cmt">// capacity — how much space is allocated</span></pre>
+
+<h3 id="go-maps">Maps — Key → Value Lookup</h3>
+<p>A map is a dictionary. You look things up by key instead of by position.</p>
+
+<pre><span class="cmt">// Create a map with initial values</span>
+ages := <span class="kw">map</span>[<span class="typ">string</span>]<span class="typ">int</span>{
+    <span class="str">"Alice"</span>: <span class="num">30</span>,
+    <span class="str">"Bob"</span>:   <span class="num">25</span>,
+}
+
+<span class="cmt">// Create an empty map (you MUST use make, not {} for empty maps you'll add to)</span>
+config := <span class="fn">make</span>(<span class="kw">map</span>[<span class="typ">string</span>]<span class="typ">string</span>)
+
+<span class="cmt">// Add or update</span>
+ages[<span class="str">"Charlie"</span>] = <span class="num">35</span>
+config[<span class="str">"host"</span>] = <span class="str">"localhost"</span>
+
+<span class="cmt">// Read a value</span>
+aliceAge := ages[<span class="str">"Alice"</span>]   <span class="cmt">// 30</span>
+
+<span class="cmt">// IMPORTANT: check if a key exists before using it
+// If you read a missing key you just get the zero value — no error</span>
+age, exists := ages[<span class="str">"Dave"</span>]
+<span class="kw">if</span> !exists {
+    fmt.<span class="fn">Println</span>(<span class="str">"Dave is not in the map"</span>)
+}
+
+<span class="cmt">// Delete a key</span>
+<span class="fn">delete</span>(ages, <span class="str">"Bob"</span>)
+
+<span class="cmt">// Loop over a map</span>
+<span class="kw">for</span> name, age := <span class="kw">range</span> ages {
+    fmt.<span class="fn">Printf</span>(<span class="str">"%s is %d years old\n"</span>, name, age)
+}
+
+<span class="cmt">// Pattern: count occurrences</span>
+words := []<span class="typ">string</span>{<span class="str">"a"</span>, <span class="str">"b"</span>, <span class="str">"a"</span>, <span class="str">"c"</span>, <span class="str">"b"</span>, <span class="str">"a"</span>}
+count := <span class="fn">make</span>(<span class="kw">map</span>[<span class="typ">string</span>]<span class="typ">int</span>)
+<span class="kw">for</span> _, w := <span class="kw">range</span> words {
+    count[w]++
+}
+<span class="cmt">// count is now: {"a": 3, "b": 2, "c": 1}</span></pre>
+
+<h3 id="go-structs">Structs — Custom Data Types</h3>
+<p>A struct groups related fields into one thing. It's Go's answer to "objects" — without the complicated class inheritance stuff.</p>
+
+<pre><span class="cmt">// Define a struct type (usually at the top of the file, outside functions)</span>
+<span class="kw">type</span> <span class="typ">User</span> <span class="kw">struct</span> {
+    Name  <span class="typ">string</span>
+    Email <span class="typ">string</span>
+    Age   <span class="typ">int</span>
+    Admin <span class="typ">bool</span>
+}
+
+<span class="cmt">// Create one</span>
+alice := <span class="typ">User</span>{
+    Name:  <span class="str">"Alice"</span>,
+    Email: <span class="str">"alice@example.com"</span>,
+    Age:   <span class="num">30</span>,
+    Admin: <span class="kw">true</span>,
+}
+
+<span class="cmt">// Access fields with a dot</span>
+fmt.<span class="fn">Println</span>(alice.Name)   <span class="cmt">// "Alice"</span>
+alice.Age = <span class="num">31</span>            <span class="cmt">// Modify a field</span>
+
+<span class="cmt">// Value method — gets a copy of the struct, reads it</span>
+<span class="kw">func</span> (u <span class="typ">User</span>) <span class="fn">Greet</span>() <span class="typ">string</span> {
+    <span class="kw">return</span> <span class="str">"Hi, I'm "</span> + u.Name
+}
+
+<span class="cmt">// Pointer method — works on the REAL struct, can modify it</span>
+<span class="kw">func</span> (u *<span class="typ">User</span>) <span class="fn">Birthday</span>() {
+    u.Age++   <span class="cmt">// This actually changes alice.Age</span>
+}
+
+fmt.<span class="fn">Println</span>(alice.<span class="fn">Greet</span>())
+alice.<span class="fn">Birthday</span>()
+fmt.<span class="fn">Println</span>(alice.Age)    <span class="cmt">// 32</span>
+
+<span class="cmt">// Pointer to a struct — common when passing structs around</span>
+alicePtr := &amp;alice         <span class="cmt">// & means "give me a pointer to alice"</span>
+alicePtr.Age = <span class="num">33</span>          <span class="cmt">// Go auto-dereferences — no need for (*alicePtr).Age</span>
+
+<span class="cmt">// Create directly as a pointer</span>
+bob := &amp;<span class="typ">User</span>{Name: <span class="str">"Bob"</span>, Age: <span class="num">25</span>}
+
+<span class="cmt">// Nested structs</span>
+<span class="kw">type</span> <span class="typ">Address</span> <span class="kw">struct</span> {
+    Street  <span class="typ">string</span>
+    City    <span class="typ">string</span>
+    Country <span class="typ">string</span>
+}
+
+<span class="kw">type</span> <span class="typ">Person</span> <span class="kw">struct</span> {
+    Name    <span class="typ">string</span>
+    Address <span class="typ">Address</span>
+}
+
+p := <span class="typ">Person</span>{Name: <span class="str">"Charlie"</span>, Address: <span class="typ">Address</span>{City: <span class="str">"Tokyo"</span>}}
+fmt.<span class="fn">Println</span>(p.Address.City)   <span class="cmt">// "Tokyo"</span></pre>
+
+<h3 id="go-interfaces">Interfaces — Describing Behavior</h3>
+<p>An interface says "any type that has these methods can be used here." It's how Go handles flexibility. You don't declare that you're implementing an interface — Go figures it out automatically based on your methods.</p>
+
+<pre><span class="cmt">// Define an interface</span>
+<span class="kw">type</span> <span class="typ">Speaker</span> <span class="kw">interface</span> {
+    <span class="fn">Speak</span>() <span class="typ">string</span>
+}
+
+<span class="cmt">// Any type with a Speak() method automatically satisfies Speaker</span>
+<span class="kw">type</span> <span class="typ">Dog</span> <span class="kw">struct</span>{ Name <span class="typ">string</span> }
+<span class="kw">type</span> <span class="typ">Cat</span> <span class="kw">struct</span>{ Name <span class="typ">string</span> }
+<span class="kw">type</span> <span class="typ">Human</span> <span class="kw">struct</span>{ Name <span class="typ">string</span> }
+
+<span class="kw">func</span> (d <span class="typ">Dog</span>)   <span class="fn">Speak</span>() <span class="typ">string</span> { <span class="kw">return</span> <span class="str">"Woof!"</span> }
+<span class="kw">func</span> (c <span class="typ">Cat</span>)   <span class="fn">Speak</span>() <span class="typ">string</span> { <span class="kw">return</span> <span class="str">"Meow!"</span> }
+<span class="kw">func</span> (h <span class="typ">Human</span>) <span class="fn">Speak</span>() <span class="typ">string</span> { <span class="kw">return</span> <span class="str">"Hello!"</span> }
+
+<span class="cmt">// A function that accepts any Speaker</span>
+<span class="kw">func</span> <span class="fn">makeSpeak</span>(s <span class="typ">Speaker</span>) {
+    fmt.<span class="fn">Println</span>(s.<span class="fn">Speak</span>())
+}
+
+<span class="fn">makeSpeak</span>(<span class="typ">Dog</span>{Name: <span class="str">"Rex"</span>})      <span class="cmt">// "Woof!"</span>
+<span class="fn">makeSpeak</span>(<span class="typ">Cat</span>{Name: <span class="str">"Whiskers"</span>}) <span class="cmt">// "Meow!"</span>
+<span class="fn">makeSpeak</span>(<span class="typ">Human</span>{Name: <span class="str">"Alice"</span>})  <span class="cmt">// "Hello!"</span>
+
+<span class="cmt">// Useful built-in interfaces you'll see everywhere:
+// error   — anything with Error() string
+// io.Reader — anything with Read(p []byte) (n int, err error)
+// io.Writer — anything with Write(p []byte) (n int, err error)
+// fmt.Stringer — anything with String() string (like .toString())</span></pre>
+
+<h3 id="go-errors">Error Handling</h3>
+<p>In Go, errors are just values. If a function can fail, it returns an error. You check it. Every time. Yes, this is verbose — but it means bugs are obvious instead of hidden.</p>
+
+<pre><span class="kw">import</span> (
+    <span class="str">"errors"</span>
+    <span class="str">"fmt"</span>
+)
+
+<span class="cmt">// Creating errors</span>
+err1 := errors.<span class="fn">New</span>(<span class="str">"something went wrong"</span>)
+err2 := fmt.<span class="fn">Errorf</span>(<span class="str">"user %s not found"</span>, username)       <span class="cmt">// formatted</span>
+err3 := fmt.<span class="fn">Errorf</span>(<span class="str">"loading config: %w"</span>, originalErr)   <span class="cmt">// wraps another error</span>
+
+<span class="cmt">// THE pattern — check immediately after every call that can fail</span>
+data, err := os.<span class="fn">ReadFile</span>(<span class="str">"config.json"</span>)
+<span class="kw">if</span> err != <span class="kw">nil</span> {
+    <span class="kw">return</span> fmt.<span class="fn">Errorf</span>(<span class="str">"reading config: %w"</span>, err)
+}
+
+<span class="cmt">// Custom error type — gives callers structured info about what went wrong</span>
+<span class="kw">type</span> <span class="typ">NotFoundError</span> <span class="kw">struct</span> {
+    Resource <span class="typ">string</span>
+    ID       <span class="typ">int</span>
+}
+
+<span class="kw">func</span> (e *<span class="typ">NotFoundError</span>) <span class="fn">Error</span>() <span class="typ">string</span> {
+    <span class="kw">return</span> fmt.<span class="fn">Sprintf</span>(<span class="str">"%s with id %d not found"</span>, e.Resource, e.ID)
+}
+
+<span class="cmt">// Unwrap and inspect errors</span>
+<span class="kw">var</span> nfe *<span class="typ">NotFoundError</span>
+<span class="kw">if</span> errors.<span class="fn">As</span>(err, &amp;nfe) {
+    fmt.<span class="fn">Println</span>(<span class="str">"missing:"</span>, nfe.Resource)
+}
+
+<span class="cmt">// Check for a specific sentinel error</span>
+<span class="kw">if</span> errors.<span class="fn">Is</span>(err, os.<span class="typ">ErrNotExist</span>) {
+    fmt.<span class="fn">Println</span>(<span class="str">"file doesn't exist"</span>)
+}</pre>
+
+<h3 id="go-goroutines">Goroutines — Doing Things at the Same Time</h3>
+<p>A goroutine is a lightweight concurrent function. You can run thousands of them. They're much cheaper than OS threads.</p>
+
+<pre><span class="cmt">// Start a goroutine with the "go" keyword — it runs concurrently</span>
+<span class="kw">go</span> fmt.<span class="fn">Println</span>(<span class="str">"I'm running in the background!"</span>)
+
+<span class="cmt">// Anonymous goroutine</span>
+<span class="kw">go func</span>() {
+    fmt.<span class="fn">Println</span>(<span class="str">"also in the background"</span>)
+}()   <span class="cmt">// Note the () at the end — you must call the function</span>
+
+<span class="cmt">// WaitGroup — wait for multiple goroutines to finish before continuing</span>
+<span class="kw">import</span> <span class="str">"sync"</span>
+
+<span class="kw">var</span> wg sync.<span class="typ">WaitGroup</span>
+
+<span class="kw">for</span> i := <span class="num">0</span>; i < <span class="num">5</span>; i++ {
+    wg.<span class="fn">Add</span>(<span class="num">1</span>)            <span class="cmt">// Tell the WaitGroup one more goroutine is starting</span>
+    <span class="kw">go func</span>(n <span class="typ">int</span>) {
+        <span class="kw">defer</span> wg.<span class="fn">Done</span>()  <span class="cmt">// Signal when this goroutine finishes</span>
+        fmt.<span class="fn">Println</span>(<span class="str">"worker"</span>, n)
+    }(i)                  <span class="cmt">// Pass i as argument — very important, don't capture it directly</span>
+}
+
+wg.<span class="fn">Wait</span>()   <span class="cmt">// Block here until all goroutines call Done()</span>
+fmt.<span class="fn">Println</span>(<span class="str">"all done"</span>)
+
+<span class="cmt">// Mutex — prevent two goroutines from writing to the same thing at once</span>
+<span class="kw">var</span> mu sync.<span class="typ">Mutex</span>
+counter := <span class="num">0</span>
+
+<span class="kw">go func</span>() {
+    mu.<span class="fn">Lock</span>()
+    counter++
+    mu.<span class="fn">Unlock</span>()
+}()</pre>
+
+<h3 id="go-channels">Channels — Goroutines Talking to Each Other</h3>
+<pre><span class="cmt">// Make a channel — like a typed pipe between goroutines</span>
+ch := <span class="fn">make</span>(<span class="kw">chan</span> <span class="typ">string</span>)
+
+<span class="cmt">// Send into a channel (blocks until someone receives)</span>
+<span class="kw">go func</span>() {
+    ch &lt;- <span class="str">"hello from goroutine"</span>
+}()
+
+<span class="cmt">// Receive from a channel (blocks until someone sends)</span>
+msg := &lt;-ch
+fmt.<span class="fn">Println</span>(msg)
+
+<span class="cmt">// Buffered channel — holds up to N values before blocking</span>
+jobs := <span class="fn">make</span>(<span class="kw">chan</span> <span class="typ">int</span>, <span class="num">5</span>)
+jobs &lt;- <span class="num">1</span>
+jobs &lt;- <span class="num">2</span>
+jobs &lt;- <span class="num">3</span>
+
+<span class="cmt">// Close a channel when done sending — receivers can detect this</span>
+<span class="fn">close</span>(jobs)
+
+<span class="cmt">// Range over a channel until it's closed</span>
+<span class="kw">for</span> job := <span class="kw">range</span> jobs {
+    fmt.<span class="fn">Println</span>(<span class="str">"processing job"</span>, job)
+}
+
+<span class="cmt">// select — wait on multiple channels at once (like a switch for channels)</span>
+<span class="kw">select</span> {
+<span class="kw">case</span> msg := &lt;-ch1:
+    fmt.<span class="fn">Println</span>(<span class="str">"got from ch1:"</span>, msg)
+<span class="kw">case</span> msg := &lt;-ch2:
+    fmt.<span class="fn">Println</span>(<span class="str">"got from ch2:"</span>, msg)
+<span class="kw">case</span> &lt;-time.<span class="fn">After</span>(<span class="num">1</span> * time.Second):
+    fmt.<span class="fn">Println</span>(<span class="str">"timed out"</span>)
+}</pre>
+
+<h3 id="go-packages">Packages &amp; Imports</h3>
+<pre><span class="cmt">// Multiple imports — put them all in one block</span>
+<span class="kw">import</span> (
+    <span class="str">"fmt"</span>            <span class="cmt">// printing and string formatting</span>
+    <span class="str">"os"</span>             <span class="cmt">// files, environment variables, command-line args</span>
+    <span class="str">"strings"</span>        <span class="cmt">// string operations</span>
+    <span class="str">"strconv"</span>        <span class="cmt">// convert between strings and numbers</span>
+    <span class="str">"math"</span>           <span class="cmt">// math functions (Sqrt, Abs, etc.)</span>
+    <span class="str">"time"</span>           <span class="cmt">// time, dates, durations</span>
+    <span class="str">"errors"</span>         <span class="cmt">// creating and inspecting errors</span>
+    <span class="str">"log"</span>            <span class="cmt">// logging (similar to fmt but with timestamps)</span>
+    <span class="str">"encoding/json"</span>  <span class="cmt">// JSON encode/decode</span>
+    <span class="str">"net/http"</span>       <span class="cmt">// HTTP server and client</span>
+    <span class="str">"sync"</span>           <span class="cmt">// WaitGroup, Mutex for concurrent code</span>
+    <span class="str">"context"</span>        <span class="cmt">// cancellation and deadlines</span>
+    <span class="str">"path/filepath"</span>  <span class="cmt">// file path manipulation</span>
+)
+
+<span class="cmt">// Your own package
+// File: myapp/store/user.go  → package is "store"</span>
+<span class="kw">package</span> <span class="pkg">store</span>
+
+<span class="kw">func</span> <span class="fn">GetUser</span>() { ... }   <span class="cmt">// Capital letter = exported (visible to other packages)</span>
+<span class="kw">func</span> <span class="fn">helper</span>()  { ... }   <span class="cmt">// Lowercase = unexported (only visible in this package)</span>
+
+<span class="cmt">// Import it from another file</span>
+<span class="kw">import</span> <span class="str">"myapp/store"</span>
+store.<span class="fn">GetUser</span>()
+
+<span class="cmt">// Commonly used stdlib snippets</span>
+strings.<span class="fn">ToUpper</span>(<span class="str">"hello"</span>)           <span class="cmt">// "HELLO"</span>
+strings.<span class="fn">ToLower</span>(<span class="str">"HELLO"</span>)           <span class="cmt">// "hello"</span>
+strings.<span class="fn">Contains</span>(<span class="str">"hello"</span>, <span class="str">"ell"</span>)   <span class="cmt">// true</span>
+strings.<span class="fn">HasPrefix</span>(<span class="str">"hello"</span>, <span class="str">"he"</span>)   <span class="cmt">// true</span>
+strings.<span class="fn">Split</span>(<span class="str">"a,b,c"</span>, <span class="str">","</span>)        <span class="cmt">// ["a", "b", "c"]</span>
+strings.<span class="fn">Join</span>([]<span class="typ">string</span>{<span class="str">"a"</span>,<span class="str">"b"</span>}, <span class="str">"-"</span>) <span class="cmt">// "a-b"</span>
+strings.<span class="fn">TrimSpace</span>(<span class="str">"  hi  "</span>)        <span class="cmt">// "hi"</span>
+strings.<span class="fn">ReplaceAll</span>(<span class="str">"aabbcc"</span>, <span class="str">"b"</span>, <span class="str">"x"</span>) <span class="cmt">// "aaxxcc"</span>
+
+strconv.<span class="fn">Atoi</span>(<span class="str">"42"</span>)    <span class="cmt">// "42" → (42, error)</span>
+strconv.<span class="fn">Itoa</span>(<span class="num">42</span>)     <span class="cmt">// 42 → "42"</span>
+
+os.<span class="fn">Getenv</span>(<span class="str">"HOME"</span>)    <span class="cmt">// read environment variable</span>
+os.Args              <span class="cmt">// command line arguments as []string</span>
+os.<span class="fn">Exit</span>(<span class="num">1</span>)           <span class="cmt">// exit with an error code</span>
+
+time.<span class="fn">Now</span>()                        <span class="cmt">// current time</span>
+time.<span class="fn">Sleep</span>(<span class="num">2</span> * time.Second)       <span class="cmt">// pause execution</span>
+time.Now().<span class="fn">Format</span>(<span class="str">"2006-01-02"</span>)   <span class="cmt">// format date (Go's quirky reference date)</span></pre>
+
+<h3 id="go-json">JSON</h3>
+<p>JSON is everywhere in web APIs. Go handles it through struct tags — special annotations that tell the JSON encoder what to call fields.</p>
+
+<pre><span class="kw">import</span> <span class="str">"encoding/json"</span>
+
+<span class="cmt">// Struct with JSON tags</span>
+<span class="kw">type</span> <span class="typ">Product</span> <span class="kw">struct</span> {
+    ID       <span class="typ">int</span>     <span class="str">`json:"id"`</span>
+    Name     <span class="typ">string</span>  <span class="str">`json:"name"`</span>
+    Price    <span class="typ">float64</span> <span class="str">`json:"price"`</span>
+    InStock  <span class="typ">bool</span>    <span class="str">`json:"in_stock"`</span>
+    Internal <span class="typ">string</span>  <span class="str">`json:"-"`</span>  <span class="cmt">// "-" means exclude from JSON</span>
+    Optional <span class="typ">string</span>  <span class="str">`json:"desc,omitempty"`</span>  <span class="cmt">// omit if empty</span>
+}
+
+<span class="cmt">// Encode Go → JSON</span>
+p := <span class="typ">Product</span>{ID: <span class="num">1</span>, Name: <span class="str">"Widget"</span>, Price: <span class="num">9.99</span>}
+data, err := json.<span class="fn">Marshal</span>(p)
+<span class="cmt">// data is []byte: {"id":1,"name":"Widget","price":9.99,"in_stock":false}</span>
+
+<span class="cmt">// Pretty-print JSON</span>
+data, err = json.<span class="fn">MarshalIndent</span>(p, <span class="str">""</span>, <span class="str">"  "</span>)
+
+<span class="cmt">// Decode JSON → Go</span>
+jsonStr := <span class="str">`{"id":2,"name":"Gadget","price":19.99}`</span>
+<span class="kw">var</span> product <span class="typ">Product</span>
+err = json.<span class="fn">Unmarshal</span>([]<span class="typ">byte</span>(jsonStr), &amp;product)
+<span class="cmt">// product.Name is now "Gadget"</span>
+
+<span class="cmt">// Decode JSON from an HTTP response body</span>
+<span class="kw">var</span> result <span class="typ">Product</span>
+json.<span class="fn">NewDecoder</span>(resp.Body).<span class="fn">Decode</span>(&amp;result)</pre>
+</section>
+
+<!-- ────────────────────────────────────────────────────────── -->
+<!--  SECTION 4 — EMACS                                         -->
+<!-- ────────────────────────────────────────────────────────── -->
+<section id="emacs">
+<h2>Emacs</h2>
+<p class="intro">Emacs is a text editor that's been around since the 1970s and is still actively developed today. The key bindings feel strange at first but become muscle memory quickly. It's deeply customizable and can do almost anything. The hardest part is the first week.</p>
+
+<h3 id="emacs-basics">Basics &amp; Notation</h3>
+<p><strong>Notation:</strong></p>
+<ul>
+  <li><code>C-x</code> = hold <kbd>Ctrl</kbd> and press <kbd>x</kbd></li>
+  <li><code>M-x</code> = hold <kbd>Alt</kbd> (or press <kbd>Esc</kbd> then release, then press <kbd>x</kbd>)</li>
+  <li><code>C-x C-f</code> = two combos: first <kbd>Ctrl+x</kbd>, then <kbd>Ctrl+f</kbd></li>
+  <li><code>C-x f</code> = <kbd>Ctrl+x</kbd>, then just <kbd>f</kbd> (without Ctrl this time)</li>
+</ul>
+
+<table class="ct keys">
+  <tr><th>Key / Command</th><th>What it does</th></tr>
+  <tr><td><code>emacs filename</code></td><td>Open Emacs with a file from the terminal</td></tr>
+  <tr><td><code>emacs .</code></td><td>Open Emacs in Dired (file browser) for the current folder</td></tr>
+  <tr><td><kbd>C-x C-c</kbd></td><td>Quit Emacs</td></tr>
+  <tr><td><kbd>C-g</kbd></td><td>Cancel whatever you're doing — your panic button</td></tr>
+  <tr><td><kbd>M-x</kbd></td><td>Run any Emacs command by typing its name</td></tr>
+  <tr><td><kbd>C-h k</kbd></td><td>Describe what a key binding does (press the key after)</td></tr>
+  <tr><td><kbd>C-h f</kbd></td><td>Describe what a function does (type the function name)</td></tr>
+  <tr><td><kbd>C-h t</kbd></td><td>Launch the built-in tutorial (great for beginners)</td></tr>
+</table>
+
+<div class="tip"><strong>Tip:</strong> If Emacs is doing something weird or seems stuck, press <kbd>C-g</kbd> a few times. This cancels any pending command. It's your escape key.</div>
+
+<h3 id="emacs-movement">Movement</h3>
+<p>You can use arrow keys. But learning these makes you dramatically faster:</p>
+
+<table class="ct keys">
+  <tr><th>Key</th><th>What it does</th></tr>
+  <tr><td><kbd>C-f</kbd></td><td>Forward one character →</td></tr>
+  <tr><td><kbd>C-b</kbd></td><td>Backward one character ←</td></tr>
+  <tr><td><kbd>C-n</kbd></td><td>Next line ↓</td></tr>
+  <tr><td><kbd>C-p</kbd></td><td>Previous line ↑</td></tr>
+  <tr><td><kbd>M-f</kbd></td><td>Forward one <em>word</em></td></tr>
+  <tr><td><kbd>M-b</kbd></td><td>Backward one <em>word</em></td></tr>
+  <tr><td><kbd>C-a</kbd></td><td>Go to beginning of line</td></tr>
+  <tr><td><kbd>C-e</kbd></td><td>Go to end of line</td></tr>
+  <tr><td><kbd>M-a</kbd></td><td>Go to beginning of sentence/paragraph</td></tr>
+  <tr><td><kbd>M-e</kbd></td><td>Go to end of sentence/paragraph</td></tr>
+  <tr><td><kbd>M-&lt;</kbd></td><td>Go to very beginning of the file</td></tr>
+  <tr><td><kbd>M-&gt;</kbd></td><td>Go to very end of the file</td></tr>
+  <tr><td><kbd>C-v</kbd></td><td>Scroll down one page</td></tr>
+  <tr><td><kbd>M-v</kbd></td><td>Scroll up one page</td></tr>
+  <tr><td><kbd>C-l</kbd></td><td>Center the screen on wherever your cursor is</td></tr>
+  <tr><td><kbd>M-g g</kbd></td><td>Jump to a specific line number</td></tr>
+</table>
+
+<h3 id="emacs-files">Files &amp; Buffers</h3>
+<p>An open file lives in a "buffer." Multiple buffers can be open at once. The file is not saved until you explicitly save it.</p>
+
+<table class="ct keys">
+  <tr><th>Key</th><th>What it does</th></tr>
+  <tr><td><kbd>C-x C-f</kbd></td><td>Open (find) a file — creates a new empty file if it doesn't exist yet</td></tr>
+  <tr><td><kbd>C-x C-s</kbd></td><td>Save the current file</td></tr>
+  <tr><td><kbd>C-x C-w</kbd></td><td>Save as — write to a different filename</td></tr>
+  <tr><td><kbd>C-x b</kbd></td><td>Switch to a different open buffer by name</td></tr>
+  <tr><td><kbd>C-x C-b</kbd></td><td>Show list of all open buffers</td></tr>
+  <tr><td><kbd>C-x k</kbd></td><td>Close (kill) a buffer — will ask if you want to save first</td></tr>
+  <tr><td><kbd>C-x C-r</kbd></td><td>Open a file as read-only (you can look but not change it)</td></tr>
+</table>
+
+<h3 id="emacs-windows">Windows</h3>
+<p>In Emacs, "windows" are panes within the editor, not OS windows. You can display multiple buffers at once.</p>
+
+<table class="ct keys">
+  <tr><th>Key</th><th>What it does</th></tr>
+  <tr><td><kbd>C-x 2</kbd></td><td>Split the window horizontally (top and bottom)</td></tr>
+  <tr><td><kbd>C-x 3</kbd></td><td>Split the window vertically (left and right)</td></tr>
+  <tr><td><kbd>C-x 1</kbd></td><td>Unsplit — make the current window fill the entire frame</td></tr>
+  <tr><td><kbd>C-x 0</kbd></td><td>Close just the current window (others stay)</td></tr>
+  <tr><td><kbd>C-x o</kbd></td><td>Move cursor to the other window</td></tr>
+  <tr><td><kbd>C-x ^</kbd></td><td>Make the current window taller</td></tr>
+</table>
+
+<h3 id="emacs-editing">Editing</h3>
+<p>Emacs calls "cut" → kill, "paste" → yank, and "clipboard" → kill ring. The kill ring holds multiple copied items.</p>
+
+<table class="ct keys">
+  <tr><th>Key</th><th>What it does</th></tr>
+  <tr><td><kbd>C-Space</kbd></td><td>Set the mark (start of a selection)</td></tr>
+  <tr><td><kbd>C-w</kbd></td><td>Cut the selected region (from mark to cursor)</td></tr>
+  <tr><td><kbd>M-w</kbd></td><td>Copy the selected region without cutting it</td></tr>
+  <tr><td><kbd>C-y</kbd></td><td>Paste (yank) what was last cut or copied</td></tr>
+  <tr><td><kbd>M-y</kbd></td><td>After pasting, cycle through older copied items</td></tr>
+  <tr><td><kbd>C-k</kbd></td><td>Cut from cursor to end of line (kill line)</td></tr>
+  <tr><td><kbd>M-k</kbd></td><td>Cut from cursor to end of sentence</td></tr>
+  <tr><td><kbd>C-d</kbd></td><td>Delete character under cursor (forward)</td></tr>
+  <tr><td><kbd>Backspace</kbd></td><td>Delete character before cursor</td></tr>
+  <tr><td><kbd>M-d</kbd></td><td>Delete the next word</td></tr>
+  <tr><td><kbd>M-Backspace</kbd></td><td>Delete the previous word</td></tr>
+  <tr><td><kbd>C-/</kbd></td><td>Undo the last change</td></tr>
+  <tr><td><kbd>C-_</kbd></td><td>Also undo (same as C-/)</td></tr>
+  <tr><td><kbd>Tab</kbd></td><td>Indent the current line correctly for the language</td></tr>
+  <tr><td><kbd>M-;</kbd></td><td>Comment or uncomment the selected code</td></tr>
+  <tr><td><kbd>M-x indent-region</kbd></td><td>Fix the indentation of an entire selected block</td></tr>
+  <tr><td><kbd>M-x sort-lines</kbd></td><td>Sort selected lines alphabetically</td></tr>
+</table>
+
+<h3 id="emacs-search">Search &amp; Replace</h3>
+
+<table class="ct keys">
+  <tr><th>Key</th><th>What it does</th></tr>
+  <tr><td><kbd>C-s</kbd></td><td>Search forward — type to filter, <kbd>Enter</kbd> to stop, <kbd>C-g</kbd> to cancel</td></tr>
+  <tr><td><kbd>C-r</kbd></td><td>Search backward</td></tr>
+  <tr><td><kbd>C-s</kbd> again while searching</td><td>Jump to the next match</td></tr>
+  <tr><td><kbd>M-%</kbd></td><td>Query-replace: find and replace interactively</td></tr>
+  <tr><td>During query-replace: <kbd>y</kbd></td><td>Replace this match and go to next</td></tr>
+  <tr><td>During query-replace: <kbd>n</kbd></td><td>Skip this match, go to next</td></tr>
+  <tr><td>During query-replace: <kbd>!</kbd></td><td>Replace all remaining matches at once</td></tr>
+  <tr><td>During query-replace: <kbd>q</kbd></td><td>Quit replacing</td></tr>
+  <tr><td><kbd>M-x replace-string</kbd></td><td>Replace all occurrences silently (no confirmation)</td></tr>
+  <tr><td><kbd>M-x grep</kbd></td><td>Run grep and show results in a buffer you can click</td></tr>
+</table>
+
+<h3 id="emacs-dired">Dired — File Browser</h3>
+<p>Dired (Directory Editor) turns a directory listing into an interactive file manager. You can navigate, open, copy, move, and delete files without leaving Emacs.</p>
+
+<table class="ct keys">
+  <tr><th>Key</th><th>What it does</th></tr>
+  <tr><td><kbd>C-x d</kbd></td><td>Open Dired (type a directory path at the prompt)</td></tr>
+  <tr><td><kbd>C-x C-f</kbd> on a directory</td><td>Also opens Dired for that directory</td></tr>
+  <tr><td><kbd>n</kbd> / <kbd>p</kbd></td><td>Move to next / previous file</td></tr>
+  <tr><td><kbd>Enter</kbd></td><td>Open the file under cursor</td></tr>
+  <tr><td><kbd>g</kbd></td><td>Refresh the listing</td></tr>
+  <tr><td><kbd>+</kbd></td><td>Create a new subdirectory</td></tr>
+  <tr><td><kbd>C</kbd></td><td>Copy file or directory</td></tr>
+  <tr><td><kbd>R</kbd></td><td>Rename or move a file</td></tr>
+  <tr><td><kbd>m</kbd></td><td>Mark a file (for batch operations)</td></tr>
+  <tr><td><kbd>u</kbd></td><td>Unmark a file</td></tr>
+  <tr><td><kbd>U</kbd></td><td>Unmark ALL files</td></tr>
+  <tr><td><kbd>t</kbd></td><td>Toggle marks — unmark marked, mark unmarked</td></tr>
+  <tr><td><kbd>% m</kbd></td><td>Mark files matching a regex pattern</td></tr>
+  <tr><td><kbd>q</kbd></td><td>Quit Dired</td></tr>
+</table>
+
+<!-- ── DANGER ZONE ── -->
+<div class="danger" id="emacs-danger">
+  <div class="danger-hdr">⚠ DANGER ZONE — Emacs Commands That Delete Without Warning</div>
+
+  <p>Emacs predates the concept of a Trash/Recycle Bin. When you delete something in Dired, it goes straight to oblivion. No second chances.</p>
+
+  <h4>Dired Deletion — There is No Trash Can</h4>
+  <table class="ct keys">
+    <tr><th>Key in Dired</th><th>What it does — and why it's dangerous</th></tr>
+    <tr><td><kbd>d</kbd></td><td>Mark a file for deletion (just marks it — nothing deleted yet)</td></tr>
+    <tr><td><kbd>x</kbd></td><td>Execute pending deletions — PERMANENTLY deletes everything marked with <kbd>d</kbd>. It asks once. After you say yes, it's gone.</td></tr>
+    <tr><td><kbd>D</kbd></td><td>Immediately delete the file under cursor. No mark step. One key, it's gone. Use with extreme care.</td></tr>
+  </table>
+
+  <p><strong>Safe workflow:</strong> Use <kbd>d</kbd> to mark things, look carefully at what's marked, then press <kbd>x</kbd>. If you marked the wrong thing, press <kbd>u</kbd> to unmark it, or <kbd>U</kbd> to unmark everything and start over.</p>
+
+  <h4>Running Shell Commands in Dired</h4>
+  <table class="ct keys">
+    <tr><th>Key</th><th>Risk</th></tr>
+    <tr><td><kbd>!</kbd> in Dired</td><td>Runs a shell command on the marked files. If you run <code>rm</code> or anything destructive, there is no undo. Be very careful what command you type here.</td></tr>
+    <tr><td><kbd>&amp;</kbd> in Dired</td><td>Same as <kbd>!</kbd> but runs in the background asynchronously.</td></tr>
+  </table>
+
+  <h4>Shells Inside Emacs</h4>
+  <table class="ct keys">
+    <tr><th>Command</th><th>Risk</th></tr>
+    <tr><td><kbd>M-x shell</kbd></td><td>Opens a shell buffer inside Emacs. All the dangers of a regular shell apply — <code>rm -rf</code> will still wreck your files.</td></tr>
+    <tr><td><kbd>M-x term</kbd></td><td>Opens a full terminal emulator inside Emacs. All shell danger zones apply, including the fork bomb.</td></tr>
+    <tr><td><kbd>M-x eshell</kbd></td><td>Emacs's own built-in shell. Slightly safer for some things, but <code>rm</code> still deletes permanently.</td></tr>
+  </table>
+
+  <h4>Overwriting Files</h4>
+  <p>If you edit a file and press <kbd>C-x C-s</kbd>, it overwrites the file on disk immediately. Before saving, use <kbd>C-/</kbd> to undo any changes you don't want. If you already saved and regret it, and you're using git, <code>git checkout -- filename</code> can restore it. Without git, it may be gone.</p>
+</div>
+</section>
+
+</main>
+
+<script>
+  function toggleTheme() {
+    const html = document.documentElement;
+    const current = html.getAttribute('data-theme');
+    html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+  }
+
+  // Smooth scroll for sidebar links
+  document.querySelectorAll('.sidebar a[href^="#"]').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+</body>
+</html>
