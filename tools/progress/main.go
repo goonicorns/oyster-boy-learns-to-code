@@ -2,13 +2,15 @@
 // Zero external dependencies — pure Go standard library only.
 // Claude runs this with the Bash tool. Students do not touch it.
 //
+// One progress.json per machine (gitignored). One learner per machine.
+// git pull never overwrites their progress.
+//
 // Usage:
-//   go run tools/progress/main.go show <name>
-//   go run tools/progress/main.go complete <name> <item>
-//   go run tools/progress/main.go set <name> <step> <lesson>
-//   go run tools/progress/main.go note <name> <text...>
-//   go run tools/progress/main.go list
-//   go run tools/progress/main.go reset <name>
+//   go run tools/progress/main.go show
+//   go run tools/progress/main.go complete <item>
+//   go run tools/progress/main.go set <step> <lesson>
+//   go run tools/progress/main.go note <text...>
+//   go run tools/progress/main.go reset
 
 package main
 
@@ -17,306 +19,225 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 )
 
 // ─── Data model ──────────────────────────────────────────────────────────────
 
-type StudentProgress struct {
-	Name           string   `json:"name"`
-	CurrentStep    string   `json:"current_step"`    // e.g. "emacs_config", "go_exercises", "project1"
-	CurrentLesson  string   `json:"current_lesson"`  // e.g. "emacs_04_use_package", "lesson_07", "exercise_05"
-	Completed      []string `json:"completed"`       // list of completed items
-	LastSession    string   `json:"last_session"`    // RFC3339 timestamp
-	Notes          []string `json:"notes"`           // timestamped notes Claude adds
+type Progress struct {
+	CurrentStep   string   `json:"current_step"`   // e.g. "emacs_config", "go_exercises", "project1"
+	CurrentLesson string   `json:"current_lesson"` // e.g. "emacs_04_use_package", "exercise_06", "lesson_09"
+	Completed     []string `json:"completed"`      // items fully finished
+	LastSession   string   `json:"last_session"`   // RFC3339
+	Notes         []string `json:"notes"`          // timestamped session notes from Claude
 }
 
-type ProgressFile struct {
-	Students map[string]*StudentProgress `json:"students"`
-}
+// ─── File I/O ─────────────────────────────────────────────────────────────────
 
-// ─── File path ────────────────────────────────────────────────────────────────
-
-// progressFilePath returns the path to progress.json.
-// Always placed in the repo root (two directories above tools/progress/).
-func progressFilePath() string {
-	// When run via `go run tools/progress/main.go` from repo root,
-	// the working directory IS the repo root.
+func filePath() string {
+	// Always resolved relative to cwd — run from repo root.
 	return filepath.Join(".", "progress.json")
 }
 
-// ─── Load / save ──────────────────────────────────────────────────────────────
-
-func load() (*ProgressFile, error) {
-	path := progressFilePath()
-	data, err := os.ReadFile(path)
+func load() (*Progress, error) {
+	data, err := os.ReadFile(filePath())
 	if os.IsNotExist(err) {
-		// First run — return empty file
-		return &ProgressFile{Students: make(map[string]*StudentProgress)}, nil
+		return &Progress{
+			CurrentStep:   "not_started",
+			CurrentLesson: "",
+			Completed:     []string{},
+			Notes:         []string{},
+		}, nil
 	}
 	if err != nil {
-		return nil, fmt.Errorf("reading progress file: %w", err)
+		return nil, fmt.Errorf("reading progress.json: %w", err)
 	}
-	var pf ProgressFile
-	if err := json.Unmarshal(data, &pf); err != nil {
-		return nil, fmt.Errorf("parsing progress file: %w", err)
+	var p Progress
+	if err := json.Unmarshal(data, &p); err != nil {
+		return nil, fmt.Errorf("parsing progress.json: %w", err)
 	}
-	if pf.Students == nil {
-		pf.Students = make(map[string]*StudentProgress)
-	}
-	return &pf, nil
+	return &p, nil
 }
 
-func save(pf *ProgressFile) error {
-	data, err := json.MarshalIndent(pf, "", "  ")
+func save(p *Progress) error {
+	data, err := json.MarshalIndent(p, "", "  ")
 	if err != nil {
 		return fmt.Errorf("encoding progress: %w", err)
 	}
-	if err := os.WriteFile(progressFilePath(), data, 0644); err != nil {
-		return fmt.Errorf("writing progress file: %w", err)
+	if err := os.WriteFile(filePath(), data, 0644); err != nil {
+		return fmt.Errorf("writing progress.json: %w", err)
 	}
 	return nil
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-func normalise(name string) string {
-	return strings.ToLower(strings.TrimSpace(name))
-}
+func now() string      { return time.Now().UTC().Format(time.RFC3339) }
+func nowShort() string { return time.Now().UTC().Format("2006-01-02 15:04") }
 
-func getOrCreate(pf *ProgressFile, name string) *StudentProgress {
-	key := normalise(name)
-	if pf.Students[key] == nil {
-		pf.Students[key] = &StudentProgress{
-			Name:          key,
-			CurrentStep:   "not_started",
-			CurrentLesson: "",
-			Completed:     []string{},
-			Notes:         []string{},
-		}
+func stepLabel(step string) string {
+	labels := map[string]string{
+		"not_started":  "not started yet",
+		"cheatsheet":   "Step 0 — cheatsheet",
+		"shell_tour":   "Step 1 — shell tour",
+		"emacs_tour":   "Step 1.5a — Emacs interactive tour",
+		"emacs_config": "Step 1.5b — Emacs config lessons",
+		"go_exercises": "Step 2 — Go exercises",
+		"project1":     "Step 3 — Project 1: Crypto API",
+		"project2":     "Step 4 — Project 2: Technical Analysis",
+		"project3":     "Step 5 — Project 3: Chat Server",
+		"complete":     "ALL DONE",
 	}
-	return pf.Students[key]
-}
-
-func contains(list []string, item string) bool {
-	for _, v := range list {
-		if v == item {
-			return true
-		}
+	if l, ok := labels[step]; ok {
+		return l
 	}
-	return false
+	return step
 }
 
-
-func now() string {
-	return time.Now().UTC().Format(time.RFC3339)
-}
-
-func nowShort() string {
-	return time.Now().UTC().Format("2006-01-02 15:04")
+func whatNext(p *Progress) string {
+	switch p.CurrentStep {
+	case "not_started", "":
+		return "Start from scratch — open cheatsheet.html, then bash playground/shell/shell-tour.sh"
+	case "cheatsheet":
+		return "Run the shell tour: bash playground/shell/shell-tour.sh"
+	case "shell_tour":
+		return "Start Emacs tour: bash playground/emacs/emacs-tour.sh"
+	case "emacs_tour":
+		if p.CurrentLesson == "" {
+			return "Begin Emacs config — guide through prompts/emacs/01_init_file.md"
+		}
+		return "Continue Emacs tour at: " + p.CurrentLesson
+	case "emacs_config":
+		if p.CurrentLesson == "" {
+			return "Start Emacs config — prompts/emacs/01_init_file.md"
+		}
+		return "Continue Emacs config at: " + p.CurrentLesson
+	case "go_exercises":
+		if p.CurrentLesson == "" {
+			return "Start Go exercises: bash playground/golang/run.sh — begin at 00_hello"
+		}
+		return "Continue Go exercises at: " + p.CurrentLesson
+	case "project1":
+		if p.CurrentLesson == "" {
+			return "Start Project 1 — read prompts/lessons/01_project_setup.md"
+		}
+		return "Continue Project 1 at: " + p.CurrentLesson
+	case "project2":
+		if p.CurrentLesson == "" {
+			return "Start Project 2 — read prompts/lessons/13_ta_what_is_it.md"
+		}
+		return "Continue Project 2 at: " + p.CurrentLesson
+	case "project3":
+		if p.CurrentLesson == "" {
+			return "Start Project 3 — read prompts/lessons/18_websockets_mental_model.md"
+		}
+		return "Continue Project 3 at: " + p.CurrentLesson
+	case "complete":
+		return "Curriculum complete. Time to build their own things."
+	}
+	return p.CurrentStep + " / " + p.CurrentLesson
 }
 
 // ─── Commands ─────────────────────────────────────────────────────────────────
 
-// show prints a full progress summary for one student.
-// Claude reads this output to orient itself at the start of a session.
-func cmdShow(pf *ProgressFile, name string) {
-	s := getOrCreate(pf, name)
-
+func cmdShow(p *Progress) {
 	fmt.Println("╔══════════════════════════════════════════════╗")
-	fmt.Printf("║  PROGRESS REPORT: %-26s║\n", strings.ToUpper(s.Name))
+	fmt.Println("║  PROGRESS REPORT                             ║")
 	fmt.Println("╚══════════════════════════════════════════════╝")
 	fmt.Println()
 
-	if s.LastSession == "" {
-		fmt.Println("  Last session:    never — this is their first session")
+	if p.LastSession == "" {
+		fmt.Println("  Last session:    never — first session")
 	} else {
-		fmt.Printf("  Last session:    %s\n", s.LastSession)
+		fmt.Printf("  Last session:    %s\n", p.LastSession)
 	}
 
-	fmt.Printf("  Current step:    %s\n", stepLabel(s.CurrentStep))
-	if s.CurrentLesson != "" {
-		fmt.Printf("  Current lesson:  %s\n", s.CurrentLesson)
+	fmt.Printf("  Current step:    %s\n", stepLabel(p.CurrentStep))
+	if p.CurrentLesson != "" {
+		fmt.Printf("  Current lesson:  %s\n", p.CurrentLesson)
 	}
 
 	fmt.Println()
-	if len(s.Completed) == 0 {
+	if len(p.Completed) == 0 {
 		fmt.Println("  Completed:       nothing yet")
 	} else {
-		fmt.Printf("  Completed (%d):\n", len(s.Completed))
-		for _, item := range s.Completed {
+		fmt.Printf("  Completed (%d):\n", len(p.Completed))
+		for _, item := range p.Completed {
 			fmt.Printf("    ✓ %s\n", item)
 		}
 	}
 
 	fmt.Println()
-	if len(s.Notes) == 0 {
+	if len(p.Notes) == 0 {
 		fmt.Println("  Notes:           none")
 	} else {
 		fmt.Println("  Notes:")
-		for _, note := range s.Notes {
+		for _, note := range p.Notes {
 			fmt.Printf("    • %s\n", note)
 		}
 	}
 
 	fmt.Println()
 	fmt.Println("  ── WHAT TO DO NEXT ──────────────────────────")
-	fmt.Printf("  %s\n", nextStep(s))
+	fmt.Printf("  %s\n", whatNext(p))
 	fmt.Println()
 }
 
-// list prints a one-line summary for every student.
-func cmdList(pf *ProgressFile) {
-	if len(pf.Students) == 0 {
-		fmt.Println("No students tracked yet.")
-		return
+func cmdComplete(p *Progress, item string) {
+	if !slices.Contains(p.Completed, item) {
+		p.Completed = append(p.Completed, item)
 	}
-	fmt.Println("╔══════════════════════════════════════════════╗")
-	fmt.Println("║  ALL STUDENTS                                ║")
-	fmt.Println("╚══════════════════════════════════════════════╝")
-	fmt.Println()
-	for _, name := range []string{"neil", "sim", "gaffor", "nate"} {
-		s := pf.Students[name]
-		if s == nil {
-			fmt.Printf("  %-8s  not started\n", name)
-			continue
-		}
-		lesson := s.CurrentLesson
-		if lesson == "" {
-			lesson = s.CurrentStep
-		}
-		fmt.Printf("  %-8s  %s  (last: %s)\n", s.Name, lesson, s.LastSession)
-	}
-	fmt.Println()
+	p.LastSession = now()
+	fmt.Printf("✓ Marked complete: %s\n", item)
 }
 
-// complete marks an item done and updates last_session.
-func cmdComplete(pf *ProgressFile, name, item string) {
-	s := getOrCreate(pf, name)
-	if !contains(s.Completed, item) {
-		s.Completed = append(s.Completed, item)
-	}
-	s.LastSession = now()
-	fmt.Printf("✓ Marked complete for %s: %s\n", s.Name, item)
+func cmdSet(p *Progress, step, lesson string) {
+	p.CurrentStep = step
+	p.CurrentLesson = lesson
+	p.LastSession = now()
+	fmt.Printf("→ Position set: %s / %s\n", step, lesson)
 }
 
-// set updates the student's current position.
-func cmdSet(pf *ProgressFile, name, step, lesson string) {
-	s := getOrCreate(pf, name)
-	s.CurrentStep = step
-	s.CurrentLesson = lesson
-	s.LastSession = now()
-	fmt.Printf("→ Set %s: step=%s lesson=%s\n", s.Name, step, lesson)
-}
-
-// note adds a timestamped note.
-func cmdNote(pf *ProgressFile, name string, parts []string) {
-	s := getOrCreate(pf, name)
+func cmdNote(p *Progress, parts []string) {
 	text := strings.Join(parts, " ")
-	entry := fmt.Sprintf("[%s] %s", nowShort(), text)
-	s.Notes = append(s.Notes, entry)
-	s.LastSession = now()
-	fmt.Printf("✎ Note added for %s\n", s.Name)
+	p.Notes = append(p.Notes, fmt.Sprintf("[%s] %s", nowShort(), text))
+	p.LastSession = now()
+	fmt.Println("✎ Note saved.")
 }
 
-// reset wipes a student's progress (asks for confirmation via args).
-func cmdReset(pf *ProgressFile, name string) {
-	key := normalise(name)
-	delete(pf.Students, key)
-	fmt.Printf("⚠  Progress reset for %s\n", key)
-}
-
-// ─── Label helpers ────────────────────────────────────────────────────────────
-
-func stepLabel(step string) string {
-	labels := map[string]string{
-		"not_started":   "not started yet",
-		"cheatsheet":    "Step 0 — cheatsheet",
-		"shell_tour":    "Step 1 — shell tour",
-		"emacs_tour":    "Step 1.5a — Emacs tour",
-		"emacs_config":  "Step 1.5b — Emacs config lessons",
-		"go_exercises":  "Step 2 — Go exercises",
-		"project1":      "Step 3 — Project 1: Crypto API",
-		"project2":      "Step 4 — Project 2: Technical Analysis",
-		"project3":      "Step 5 — Project 3: Chat Server",
-		"complete":      "ALL DONE 🎉",
-	}
-	if label, ok := labels[step]; ok {
-		return label
-	}
-	return step
-}
-
-func nextStep(s *StudentProgress) string {
-	switch s.CurrentStep {
-	case "not_started", "":
-		return "Start from the beginning: open the cheatsheet, then bash playground/shell/shell-tour.sh"
-	case "cheatsheet":
-		return "Run the shell tour: bash playground/shell/shell-tour.sh"
-	case "shell_tour":
-		return "Start the Emacs tour: bash playground/emacs/emacs-tour.sh"
-	case "emacs_tour":
-		if s.CurrentLesson == "" {
-			return "Begin Emacs config — read prompts/emacs/01_init_file.md and start guiding"
-		}
-		return fmt.Sprintf("Continue Emacs config from: %s", s.CurrentLesson)
-	case "emacs_config":
-		if s.CurrentLesson == "" {
-			return "Start Go exercises: bash playground/golang/run.sh"
-		}
-		return fmt.Sprintf("Continue Emacs config from: %s", s.CurrentLesson)
-	case "go_exercises":
-		if s.CurrentLesson == "" {
-			return "Start Go exercises from exercise 00_hello"
-		}
-		return fmt.Sprintf("Continue Go exercises from: %s", s.CurrentLesson)
-	case "project1":
-		if s.CurrentLesson == "" {
-			return "Start Project 1 — read prompts/lessons/01_project_setup.md"
-		}
-		return fmt.Sprintf("Continue Project 1 from: %s", s.CurrentLesson)
-	case "project2":
-		if s.CurrentLesson == "" {
-			return "Start Project 2 — read prompts/lessons/13_ta_what_is_it.md"
-		}
-		return fmt.Sprintf("Continue Project 2 from: %s", s.CurrentLesson)
-	case "project3":
-		if s.CurrentLesson == "" {
-			return "Start Project 3 — read prompts/lessons/18_websockets_mental_model.md"
-		}
-		return fmt.Sprintf("Continue Project 3 from: %s", s.CurrentLesson)
-	case "complete":
-		return "They've finished the curriculum. Time to build their own things."
-	default:
-		return fmt.Sprintf("Current position: %s / %s", s.CurrentStep, s.CurrentLesson)
-	}
+func cmdReset(p *Progress) {
+	p.CurrentStep = "not_started"
+	p.CurrentLesson = ""
+	p.Completed = []string{}
+	p.Notes = []string{}
+	p.LastSession = ""
+	fmt.Println("⚠  Progress reset.")
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 func usage() {
 	fmt.Print(`
-Progress tracker — DO NOT EDIT progress.json BY HAND.
-Claude uses this tool to track where each student is.
+Progress tracker — Claude uses this. Students do not touch it.
 
 Commands:
-  show <name>                    Print full progress report for a student
-  list                           Print one-line summary for all students
-  complete <name> <item>         Mark an item complete
-  set <name> <step> <lesson>     Update current position
-  note <name> <text...>          Add a note about this session
-  reset <name>                   Wipe progress for a student
+  show                    Print full progress report
+  complete <item>         Mark an item complete
+  set <step> <lesson>     Update current position
+  note <text...>          Add a session note
+  reset                   Wipe all progress
 
-Steps:    not_started | cheatsheet | shell_tour | emacs_tour | emacs_config
-          go_exercises | project1 | project2 | project3 | complete
+Steps:
+  not_started | cheatsheet | shell_tour | emacs_tour | emacs_config
+  go_exercises | project1 | project2 | project3 | complete
 
 Examples:
-  go run tools/progress/main.go show neil
-  go run tools/progress/main.go set neil emacs_config emacs_04_use_package
-  go run tools/progress/main.go complete neil emacs_03_ui_cleanup
-  go run tools/progress/main.go note neil struggled with setq-default, clicked by end
-  go run tools/progress/main.go list
+  go run tools/progress/main.go show
+  go run tools/progress/main.go set emacs_config emacs_04_use_package
+  go run tools/progress/main.go complete emacs_03_ui_cleanup
+  go run tools/progress/main.go note helm clicked, let* still shaky — revisit next session
 `)
 }
 
@@ -327,63 +248,49 @@ func main() {
 		os.Exit(1)
 	}
 
-	pf, err := load()
+	p, err := load()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error loading progress: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 
-	cmd := args[0]
-	switch cmd {
+	switch args[0] {
 	case "show":
-		if len(args) < 2 {
-			fmt.Fprintln(os.Stderr, "Usage: show <name>")
-			os.Exit(1)
-		}
-		cmdShow(pf, args[1])
-		// Update last session on show (means a session is starting)
-		s := getOrCreate(pf, args[1])
-		s.LastSession = now()
-
-	case "list":
-		cmdList(pf)
+		cmdShow(p)
+		p.LastSession = now() // mark session start
 
 	case "complete":
-		if len(args) < 3 {
-			fmt.Fprintln(os.Stderr, "Usage: complete <name> <item>")
+		if len(args) < 2 {
+			fmt.Fprintln(os.Stderr, "Usage: complete <item>")
 			os.Exit(1)
 		}
-		cmdComplete(pf, args[1], args[2])
+		cmdComplete(p, args[1])
 
 	case "set":
-		if len(args) < 4 {
-			fmt.Fprintln(os.Stderr, "Usage: set <name> <step> <lesson>")
+		if len(args) < 3 {
+			fmt.Fprintln(os.Stderr, "Usage: set <step> <lesson>")
 			os.Exit(1)
 		}
-		cmdSet(pf, args[1], args[2], args[3])
+		cmdSet(p, args[1], args[2])
 
 	case "note":
-		if len(args) < 3 {
-			fmt.Fprintln(os.Stderr, "Usage: note <name> <text...>")
+		if len(args) < 2 {
+			fmt.Fprintln(os.Stderr, "Usage: note <text...>")
 			os.Exit(1)
 		}
-		cmdNote(pf, args[1], args[2:])
+		cmdNote(p, args[1:])
 
 	case "reset":
-		if len(args) < 2 {
-			fmt.Fprintln(os.Stderr, "Usage: reset <name>")
-			os.Exit(1)
-		}
-		cmdReset(pf, args[1])
+		cmdReset(p)
 
 	default:
-		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", cmd)
+		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", args[0])
 		usage()
 		os.Exit(1)
 	}
 
-	if err := save(pf); err != nil {
-		fmt.Fprintf(os.Stderr, "Error saving progress: %v\n", err)
+	if err := save(p); err != nil {
+		fmt.Fprintf(os.Stderr, "Error saving: %v\n", err)
 		os.Exit(1)
 	}
 }

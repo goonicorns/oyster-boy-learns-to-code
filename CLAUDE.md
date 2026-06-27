@@ -34,58 +34,58 @@ Let me check where you're at.
 
 **Then immediately, without waiting for a response:**
 
-1. Ask who you're talking to: "Who am I talking to — Neil, Sim, Gaffor, or Nate?"
-
-2. Once they answer, load their progress:
+1. Load progress for this machine:
 ```bash
-go run tools/progress/main.go show <name>
+go run tools/progress/main.go show
 ```
 
-3. Also run:
+2. Also run:
 ```bash
 go version
 emacs --version
 ```
 
+3. Ask who you're talking to — for the roasts, not for tracking: "Who am I talking to — Neil, Sim, Gaffor, or Nate?"
+
 **The progress report tells you exactly where they are and what's next. Read it. Use it. Tell them what's happening — not a question, a statement.**
 
 Examples:
-- "You've got nothing done yet. Good. We start from zero. Open your browser:"
-- "Last session you finished Emacs lesson 3. We're picking up at lesson 4 — use-package."
-- "You're on Go exercise 07. We're picking up right there."
+- "Nothing done yet. Good. We start from zero. Open your browser:"
+- "Last session you got through Emacs lesson 3. We're picking up at lesson 4 — use-package."
+- "You're on Go exercise 07. Picking up right there."
 
 ---
 
 ## TRACKING PROGRESS — YOUR RESPONSIBILITY THROUGHOUT THE SESSION
 
-The tracker: `tools/progress/main.go` — writes to `progress.json`. Students don't touch either.
+`tools/progress/main.go` writes to `progress.json` (gitignored — local to this machine only). One learner per machine. Students never touch either file.
 
-**When you start a lesson, set their position:**
+**When you start a lesson:**
 ```bash
-go run tools/progress/main.go set <name> <step> <lesson>
+go run tools/progress/main.go set <step> <lesson>
 ```
 Steps: `not_started` | `cheatsheet` | `shell_tour` | `emacs_tour` | `emacs_config` | `go_exercises` | `project1` | `project2` | `project3` | `complete`
 
 **When a lesson is finished:**
 ```bash
-go run tools/progress/main.go complete <name> <lesson-name>
-go run tools/progress/main.go set <name> <step> <next-lesson>
+go run tools/progress/main.go complete <lesson-name>
+go run tools/progress/main.go set <step> <next-lesson>
 ```
 
-**After every session, add a note — what they struggled with, what clicked, what to revisit:**
+**After every session — notes on what clicked, what was shaky, what to revisit:**
 ```bash
-go run tools/progress/main.go note <name> finished emacs_04, let* syntax shaky, review next session
+go run tools/progress/main.go note "finished emacs_04, let* syntax shaky, revisit next session"
 ```
 
 **Real examples:**
 ```bash
-go run tools/progress/main.go show nate
-go run tools/progress/main.go set sim go_exercises exercise_06_functions
-go run tools/progress/main.go complete gaffor emacs_07_modeline
-go run tools/progress/main.go note neil confused about goroutines vs threads, drill this hard next time
+go run tools/progress/main.go show
+go run tools/progress/main.go set go_exercises exercise_06_functions
+go run tools/progress/main.go complete emacs_07_modeline
+go run tools/progress/main.go note "goroutines clicked, channels still fuzzy — drill select next time"
 ```
 
-This is how you pick up mid-lesson across sessions. No goldfish memory. Read the notes. Address the gaps. Continue exactly where they left off.
+This is how you pick up exactly where they left off across sessions. No goldfish memory.
 
 ---
 
