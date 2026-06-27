@@ -7,6 +7,7 @@
 //
 // Usage:
 //   go run tools/progress/main.go show
+//   go run tools/progress/main.go setname <name>
 //   go run tools/progress/main.go complete <item>
 //   go run tools/progress/main.go set <step> <lesson>
 //   go run tools/progress/main.go note <text...>
@@ -27,8 +28,9 @@ import (
 // ─── Data model ──────────────────────────────────────────────────────────────
 
 type Progress struct {
-	CurrentStep   string   `json:"current_step"`   // e.g. "emacs_config", "go_exercises", "project1"
-	CurrentLesson string   `json:"current_lesson"` // e.g. "emacs_04_use_package", "exercise_06", "lesson_09"
+	Name          string   `json:"name"`           // neil | sim | gaffor | nate
+	CurrentStep   string   `json:"current_step"`   // e.g. "emacs_config", "go_exercises"
+	CurrentLesson string   `json:"current_lesson"` // e.g. "emacs_04_use_package"
 	Completed     []string `json:"completed"`      // items fully finished
 	LastSession   string   `json:"last_session"`   // RFC3339
 	Notes         []string `json:"notes"`          // timestamped session notes from Claude
@@ -37,7 +39,6 @@ type Progress struct {
 // ─── File I/O ─────────────────────────────────────────────────────────────────
 
 func filePath() string {
-	// Always resolved relative to cwd — run from repo root.
 	return filepath.Join(".", "progress.json")
 }
 
@@ -45,10 +46,9 @@ func load() (*Progress, error) {
 	data, err := os.ReadFile(filePath())
 	if os.IsNotExist(err) {
 		return &Progress{
-			CurrentStep:   "not_started",
-			CurrentLesson: "",
-			Completed:     []string{},
-			Notes:         []string{},
+			CurrentStep: "not_started",
+			Completed:   []string{},
+			Notes:       []string{},
 		}, nil
 	}
 	if err != nil {
@@ -148,6 +148,12 @@ func cmdShow(p *Progress) {
 	fmt.Println("╚══════════════════════════════════════════════╝")
 	fmt.Println()
 
+	if p.Name == "" {
+		fmt.Println("  Learner:         *** NOT SET — ask who they are, then run: setname <name> ***")
+	} else {
+		fmt.Printf("  Learner:         %s\n", p.Name)
+	}
+
 	if p.LastSession == "" {
 		fmt.Println("  Last session:    never — first session")
 	} else {
@@ -185,6 +191,12 @@ func cmdShow(p *Progress) {
 	fmt.Println()
 }
 
+func cmdSetName(p *Progress, name string) {
+	p.Name = strings.ToLower(strings.TrimSpace(name))
+	p.LastSession = now()
+	fmt.Printf("✓ Learner set to: %s\n", p.Name)
+}
+
 func cmdComplete(p *Progress, item string) {
 	if !slices.Contains(p.Completed, item) {
 		p.Completed = append(p.Completed, item)
@@ -208,12 +220,14 @@ func cmdNote(p *Progress, parts []string) {
 }
 
 func cmdReset(p *Progress) {
-	p.CurrentStep = "not_started"
-	p.CurrentLesson = ""
-	p.Completed = []string{}
-	p.Notes = []string{}
-	p.LastSession = ""
-	fmt.Println("⚠  Progress reset.")
+	name := p.Name // preserve the name on reset
+	*p = Progress{
+		Name:        name,
+		CurrentStep: "not_started",
+		Completed:   []string{},
+		Notes:       []string{},
+	}
+	fmt.Println("⚠  Progress reset (name kept).")
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
@@ -224,10 +238,11 @@ Progress tracker — Claude uses this. Students do not touch it.
 
 Commands:
   show                    Print full progress report
+  setname <name>          Set who the learner is (neil/sim/gaffor/nate)
   complete <item>         Mark an item complete
   set <step> <lesson>     Update current position
   note <text...>          Add a session note
-  reset                   Wipe all progress
+  reset                   Wipe progress (keeps name)
 
 Steps:
   not_started | cheatsheet | shell_tour | emacs_tour | emacs_config
@@ -235,9 +250,10 @@ Steps:
 
 Examples:
   go run tools/progress/main.go show
+  go run tools/progress/main.go setname neil
   go run tools/progress/main.go set emacs_config emacs_04_use_package
   go run tools/progress/main.go complete emacs_03_ui_cleanup
-  go run tools/progress/main.go note helm clicked, let* still shaky — revisit next session
+  go run tools/progress/main.go note "helm clicked, let* still shaky"
 `)
 }
 
@@ -257,7 +273,14 @@ func main() {
 	switch args[0] {
 	case "show":
 		cmdShow(p)
-		p.LastSession = now() // mark session start
+		p.LastSession = now()
+
+	case "setname":
+		if len(args) < 2 {
+			fmt.Fprintln(os.Stderr, "Usage: setname <name>")
+			os.Exit(1)
+		}
+		cmdSetName(p, args[1])
 
 	case "complete":
 		if len(args) < 2 {
