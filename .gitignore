@@ -1,0 +1,12 @@
+# Progress tracking — local to each person's machine
+progress.json
+
+# Emacs tour practice files (generated at runtime)
+playground/emacs/practice_files/
+
+# Go build artifacts
+*.exe
+*.test
+
+# macOS
+.DS_Store

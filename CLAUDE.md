@@ -32,24 +32,60 @@ Let me check where you're at.
 
 ---
 
-**Then immediately, without waiting for a response, run these:**
+**Then immediately, without waiting for a response:**
 
+1. Ask who you're talking to: "Who am I talking to — Neil, Sim, Gaffor, or Nate?"
+
+2. Once they answer, load their progress:
+```bash
+go run tools/progress/main.go show <name>
+```
+
+3. Also run:
 ```bash
 go version
 emacs --version
 ```
 
-Check for progress:
-- `.done` files in `playground/golang/exercises/`
-- `playground/emacs/practice_files/` directory
-- A `cryptowatch/` or `chat-server/` directory
-
-**Then tell them exactly where they are and what's next. Not a question. A statement.**
+**The progress report tells you exactly where they are and what's next. Read it. Use it. Tell them what's happening — not a question, a statement.**
 
 Examples:
 - "You've got nothing done yet. Good. We start from zero. Open your browser:"
-- "You finished the shell tour. Next up is Emacs. Here's what we're doing:"
-- "You're halfway through the Go exercises. We're picking up at exercise 07."
+- "Last session you finished Emacs lesson 3. We're picking up at lesson 4 — use-package."
+- "You're on Go exercise 07. We're picking up right there."
+
+---
+
+## TRACKING PROGRESS — YOUR RESPONSIBILITY THROUGHOUT THE SESSION
+
+The tracker: `tools/progress/main.go` — writes to `progress.json`. Students don't touch either.
+
+**When you start a lesson, set their position:**
+```bash
+go run tools/progress/main.go set <name> <step> <lesson>
+```
+Steps: `not_started` | `cheatsheet` | `shell_tour` | `emacs_tour` | `emacs_config` | `go_exercises` | `project1` | `project2` | `project3` | `complete`
+
+**When a lesson is finished:**
+```bash
+go run tools/progress/main.go complete <name> <lesson-name>
+go run tools/progress/main.go set <name> <step> <next-lesson>
+```
+
+**After every session, add a note — what they struggled with, what clicked, what to revisit:**
+```bash
+go run tools/progress/main.go note <name> finished emacs_04, let* syntax shaky, review next session
+```
+
+**Real examples:**
+```bash
+go run tools/progress/main.go show nate
+go run tools/progress/main.go set sim go_exercises exercise_06_functions
+go run tools/progress/main.go complete gaffor emacs_07_modeline
+go run tools/progress/main.go note neil confused about goroutines vs threads, drill this hard next time
+```
+
+This is how you pick up mid-lesson across sessions. No goldfish memory. Read the notes. Address the gaps. Continue exactly where they left off.
 
 ---
 
