@@ -1,70 +1,84 @@
 # Oyster Boy Learns to Code
 
-A learning kit for two people who have never written code before.
+---
+
+## Before anything else — install these three things
+
+You need these installed on your computer. Do this first.
+
+### 1. Node.js
+Download and install from [nodejs.org](https://nodejs.org) (click the big green button).
+After installing, open a terminal and check it worked:
+```bash
+node --version
+```
+You should see something like `v20.0.0`. If you do, move on.
+
+> **What's a terminal?** On Mac: press `Cmd+Space`, type `Terminal`, press Enter. That black (or white) window that opens is the terminal. You'll be using it a lot.
+
+### 2. Claude Code
+In your terminal, paste this and press Enter:
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+Wait for it to finish. Then check it worked:
+```bash
+claude --version
+```
+
+### 3. Go
+Download from [golang.org/dl](https://golang.org/dl) — click the button for Mac.
+Open the downloaded file and follow the installer.
+Check it worked:
+```bash
+go version
+```
+
+### 4. Emacs
+In your terminal:
+```bash
+brew install --cask emacs
+```
+Don't have `brew`? Install it first from [brew.sh](https://brew.sh) — copy the command on their homepage and run it.
 
 ---
 
-## Get this onto your computer
+## Get the project onto your computer
 
-Open a terminal. On Mac: press `Cmd+Space`, type `Terminal`, press Enter.
+In your terminal, paste these two lines one at a time and press Enter after each:
 
 ```bash
 git clone https://github.com/goonicorns/oyster-boy-learns-to-code.git
+```
+
+```bash
 cd oyster-boy-learns-to-code
 ```
 
+The first line downloads the project. The second line moves you into the project folder.
+
 ---
 
-## Start here — one command
+## Start learning
+
+Now run this:
 
 ```bash
 bash start.sh
 ```
 
-That's it. Claude Code opens and takes over from there.
+Claude Code opens and **immediately starts talking**. It will tell you exactly what to do. You don't need to figure anything out — just follow Claude's instructions.
 
-Claude is your tutor. It tells you what to do next. You don't need to figure anything out on your own — that's the whole point.
-
----
-
-## What you need installed before starting
-
-**Claude Code** (the thing that makes this work):
-```bash
-npm install -g @anthropic-ai/claude-code
-```
-
-**Go** (the programming language):
-Download from [golang.org/dl](https://golang.org/dl/) and install it.
-Check it worked: `go version`
-
-**Emacs** (your code editor):
-```bash
-brew install --cask emacs
-```
-Or download from [emacsformacosx.com](https://emacsformacosx.com)
-
----
-
-## What's in here
-
-| Thing | What it is |
-|---|---|
-| `start.sh` | Run this to start. Claude takes over. |
-| `cheatsheet.html` | Reference sheet for everything. Open in browser. |
-| `playground/shell/` | Interactive terminal tutorial |
-| `playground/emacs/` | Interactive Emacs tutorial |
-| `playground/golang/` | Go exercises, one at a time |
-| `prompts/` | Claude's lesson files (don't worry about these) |
+That's it. You're in.
 
 ---
 
 ## What you'll build
 
-Three real projects, built in order:
+Three real things, built step by step:
 
-1. **Crypto price monitoring API** — a web server that tracks prices, stores them in a database, and has user accounts with login
-2. **Technical analysis engine** — computes moving averages and price indicators on top of the API
-3. **Real-time chat server** — WebSockets, rooms, message history, a frontend you can open in two browser tabs and watch messages appear instantly
+1. A **web API** that tracks crypto prices, stores them in a database, and has user login
+2. A **technical analysis engine** that computes price indicators on top of that API
+3. A **real-time chat server** — open two browser tabs and watch messages appear live
 
-None of that will sound scary by the time you get there.
+You'll understand every piece of all three by the time you're done.
