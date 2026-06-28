@@ -88,6 +88,7 @@ func stepLabel(step string) string {
 		"project1":     "Step 3 — Project 1: Crypto API",
 		"project2":     "Step 4 — Project 2: Technical Analysis",
 		"project3":     "Step 5 — Project 3: Chat Server",
+		"project4":     "Step 6 — Project 4: Ethereum & Smart Contracts",
 		"complete":     "ALL DONE",
 	}
 	if l, ok := labels[step]; ok {
@@ -134,6 +135,11 @@ func whatNext(p *Progress) string {
 			return "Start Project 3 — read prompts/lessons/18_websockets_mental_model.md"
 		}
 		return "Continue Project 3 at: " + p.CurrentLesson
+	case "project4":
+		if p.CurrentLesson == "" {
+			return "Start Project 4 — read prompts/lessons/27_blockchain_mental_model.md"
+		}
+		return "Continue Project 4 at: " + p.CurrentLesson
 	case "complete":
 		return "Curriculum complete. Time to build their own things."
 	}
@@ -246,7 +252,7 @@ Commands:
 
 Steps:
   not_started | cheatsheet | shell_tour | emacs_tour | emacs_config
-  go_exercises | project1 | project2 | project3 | complete
+  go_exercises | project1 | project2 | project3 | project4 | complete
 
 Examples:
   go run tools/progress/main.go show

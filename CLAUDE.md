@@ -197,6 +197,21 @@ Set: `go run tools/progress/main.go set project2 lesson_13_ta_intro`
 ### Step 5: Project 3 — Real-Time Chat Server (lessons 18–26)
 Set: `go run tools/progress/main.go set project3 lesson_18_websockets`
 
+### Step 6: Project 4 — Ethereum Smart Contract Interaction (lessons 27–35)
+Set: `go run tools/progress/main.go set project4 lesson_27_blockchain_mental_model`
+
+```
+prompts/lessons/27_blockchain_mental_model.md    → set project4 lesson_27_blockchain_mental_model
+prompts/lessons/28_project_setup_and_ethclient.md → set project4 lesson_28_ethclient
+prompts/lessons/29_reading_transactions.md        → set project4 lesson_29_transactions
+prompts/lessons/30_smart_contracts_and_abi.md     → set project4 lesson_30_abi
+prompts/lessons/31_abigen.md                      → set project4 lesson_31_abigen
+prompts/lessons/32_events_and_logs.md             → set project4 lesson_32_events
+prompts/lessons/33_sending_transactions.md        → set project4 lesson_33_sending
+prompts/lessons/34_deploy_and_interact.md         → set project4 lesson_34_deploy
+prompts/lessons/35_blockchain_wrapup.md           → set complete complete
+```
+
 ---
 
 ## IF THEY SAY "I DON'T GET IT"
