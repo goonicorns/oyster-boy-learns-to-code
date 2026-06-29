@@ -133,4 +133,27 @@ Ask: "What happens if we never clean up expired keys?" (they stay in memory fore
 
 ---
 
+## Project setup — teach it
+
+"You're building a server. New project. What's first?"
+
+Walk them through it with questions:
+1. `mkdir ~/projects/kv && cd ~/projects/kv && go mod init kv`
+2. No external dependencies — pure stdlib. "Why?" (net, bufio, sync, os — all standard library. This is a feature: the simpler the dependency tree, the fewer things can go wrong.)
+
+Ask them to design the directory structure:
+```
+kv/
+  main.go          — start the TCP server, load AOF log
+  store/
+    store.go       — the in-memory map + mutex + TTL
+    expiry.go      — background sweeper
+  server/
+    server.go      — net.Listen, Accept, handleConn
+  aof/
+    aof.go         — append-only file persistence
+```
+
+Ask: "Why separate `store/` from `server/`?" (the store doesn't know about TCP — it just knows SET/GET/DEL/TTL. The server doesn't know about storage logic — it just translates protocol to store calls. You could add a gRPC interface later without touching the store.)
+
 ## No code this lesson. No commit.

@@ -183,3 +183,17 @@ Background workers:
 ```
 
 "That's a real API. With real data. With authentication. With technical analysis."
+
+---
+
+## Docker — update the Compose file for the full stack
+
+"Project 1 had Postgres in Docker. Now we have the whole app to containerize too. Update the Docker Compose — add the app service."
+
+They've written a Dockerfile in Project 1. Have them write it from memory for this one.
+
+Ask: "The TA engine has a background goroutine that fetches prices every 5 minutes. What does Docker do to your goroutines when the container gets a SIGTERM?" (the container receives the signal, the Go runtime propagates it — if the app doesn't handle it gracefully, goroutines are killed mid-work. Ask: did we implement graceful shutdown? If not: how would you?)
+
+Ask: "The Postgres container has a volume for data persistence. Does the app container need one?" (no — the app is stateless. All state is in Postgres. Any number of app containers can run simultaneously against the same database.) 
+
+That last point is important — make them understand stateless apps vs stateful databases.

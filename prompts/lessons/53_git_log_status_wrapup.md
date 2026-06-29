@@ -213,6 +213,54 @@ Concepts understood:
 
 ---
 
+## Docker — distribute the CLI as a container
+
+"Real CLI tools ship in Docker. `docker run hashicorp/terraform`, `docker run amazon/aws-cli`. You can distribute minigit the same way."
+
+"Write the Dockerfile. You've done this four times now. From memory."
+
+```dockerfile
+FROM golang:1.22-alpine AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o minigit .
+
+FROM alpine:latest
+COPY --from=builder /app/minigit /usr/local/bin/minigit
+ENTRYPOINT ["minigit"]
+```
+
+Build and test it:
+```bash
+docker build -t minigit .
+
+# Run inside a mounted directory so minigit can see real files
+docker run -v $(pwd):/repo -w /repo minigit init
+docker run -v $(pwd):/repo -w /repo minigit add main.go
+docker run -v $(pwd):/repo -w /repo minigit commit -m "first commit"
+docker run -v $(pwd):/repo -w /repo minigit log
+```
+
+Ask: "We mount with `-v $(pwd):/repo -w /repo`. What does each part do?"
+(`-v $(pwd):/repo` = bind-mount the current directory into the container at `/repo`. `-w /repo` = set the working directory inside the container to `/repo`. Without this, the container would work on its own empty filesystem and find nothing.)
+
+Ask: "What's the difference between `ENTRYPOINT` and `CMD` when a user runs `docker run minigit log`?" (`ENTRYPOINT ["minigit"]` is fixed — it always runs `minigit`. The `log` argument is appended. If it were `CMD ["minigit"]`, the user could override the whole command with `docker run minigit sh` and get a shell instead.)
+
+Ask: "Why is distributing a CLI via Docker useful even for something like minigit that operates on local files?" (zero dependencies for the user — no Go, no PATH setup, no version conflicts. `docker pull minigit` and it works on any machine with Docker.)
+
+Bonus — make it feel like a real tool:
+```bash
+# Add an alias so they can run `minigit` without the docker flags
+alias minigit='docker run -v $(pwd):/repo -w /repo minigit'
+minigit log
+```
+
+"That's how tools like Terraform and AWS CLI ship. A shell alias wraps the Docker command."
+
+---
+
 ## Roast and celebrate — per personality
 
 For each student, deliver a genuine, specific celebration using what you know about them:

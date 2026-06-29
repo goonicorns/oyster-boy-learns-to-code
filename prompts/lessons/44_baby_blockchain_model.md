@@ -151,4 +151,30 @@ Ask: "Why does this make fraud expensive?" (to rewrite block 1, you'd have to re
 
 ---
 
+## Project setup — teach it
+
+"New project. You know the steps. What's first?"
+
+Walk them through it with questions only:
+1. `mkdir ~/projects/blockchain && cd ~/projects/blockchain`
+2. `go mod init blockchain`
+3. No external dependencies for this project — pure stdlib. Ask: "Why no `go get` needed?" (SHA-256 is in `crypto/sha256`, HTTP in `net/http`, JSON in `encoding/json` — all standard library)
+
+Directory structure — ask them to design it based on what you just described we're building:
+```
+blockchain/
+  main.go            — starts the HTTP API
+  block/
+    block.go         — Block struct, Mine, computeHash
+  chain/
+    chain.go         — Chain struct, AddBlock, IsValid
+  wallet/
+    wallet.go        — key generation, signing, verification
+  api/
+    handlers.go      — REST endpoints
+```
+
+Ask: "Why separate `block/` and `chain/`?" (block knows about itself — computing its own hash. Chain knows about the sequence — validation, adding blocks. Single responsibility.)
+Ask: "What does `main.go` do in this structure?" (creates the chain, sets up the HTTP server, wires up the API handlers — just wiring, no business logic)
+
 ## No code this lesson. No commit.

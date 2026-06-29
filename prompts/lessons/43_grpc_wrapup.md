@@ -121,6 +121,75 @@ Ask: "Why not just put the token in the request message?" (separation of concern
 
 ---
 
+## Docker Compose — server + client in separate containers
+
+"A gRPC server running locally is fine for development. But how would you deploy it? Two services — server and client — each in their own container, talking over a network."
+
+"Write a Docker Compose for this. What services do we need?"
+
+Let them think it through. Then:
+
+```yaml
+version: '3.9'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    ports:
+      - "50051:50051"
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    depends_on:
+      - server
+    environment:
+      SERVER_ADDR: server:50051
+```
+
+Two Dockerfiles — one per binary:
+
+`Dockerfile.server`:
+```dockerfile
+FROM golang:1.22-alpine AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o server ./server
+FROM alpine:latest
+COPY --from=builder /app/server /server
+EXPOSE 50051
+CMD ["/server"]
+```
+
+`Dockerfile.client`:
+```dockerfile
+FROM golang:1.22-alpine AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o client ./client
+FROM alpine:latest
+COPY --from=builder /app/client /client
+CMD ["/client"]
+```
+
+Ask them to write these with minimal hints — they've seen this pattern in Project 5.
+
+Ask:
+- "The client connects to `server:50051`. Why `server` and not `localhost`?" (Docker Compose service name is the hostname — same as lesson 54's Postgres example)
+- "Why `depends_on: server`?" (client can't connect before server is up — without this the client starts instantly and immediately fails with "connection refused")
+- "We have two Dockerfiles. What's the alternative to having two separate files?" (`--target` in a multi-stage build — each stage is a different service. One file, `docker build --target server` or `--target client`.)
+
+Have them implement the multi-stage alternative as a bonus.
+
+---
+
 ## Final milestone quiz — no notes, no looking
 
 1. "What gRPC status code would you return if someone requests a symbol that doesn't exist in your database?"

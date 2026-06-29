@@ -215,6 +215,41 @@ Tell them about specific things they can build RIGHT NOW with what they know:
 
 ---
 
+## Docker — containerize the Ethereum client
+
+"The Ethereum client reads from the chain — it's a long-running process that subscribes to events or polls for new blocks. Those should run in Docker."
+
+"Write the Dockerfile. You know the pattern."
+
+```dockerfile
+FROM golang:1.22-alpine AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o ethclient .
+
+FROM alpine:latest
+RUN apk add --no-cache ca-certificates
+COPY --from=builder /app/ethclient /ethclient
+CMD ["/ethclient"]
+```
+
+Run it with the Alchemy API key from an environment variable — never bake secrets into images:
+
+```bash
+docker build -t ethclient .
+docker run -e ALCHEMY_URL="wss://eth-mainnet.g.alchemy.com/v2/YOUR_KEY" ethclient
+```
+
+Ask: "Why `ca-certificates` in the final image?" (the Go binary makes HTTPS/WSS requests to Alchemy — TLS requires a trusted certificate store. Alpine doesn't include one by default.)
+
+Ask: "Why pass the Alchemy key as an environment variable instead of ARG in the Dockerfile?" (ARG is baked into the image layer — it shows up in `docker history`. Env vars passed at runtime aren't stored in the image at all. Never bake secrets into images.)
+
+Ask: "What does `docker history ethclient` show?" (have them run it — it shows every layer, the command that created it, and the size. This makes secret leakage via ARG very visible.)
+
+---
+
 ## Celebrate properly
 
 This is the end of the curriculum. Make it a moment.
@@ -235,10 +270,10 @@ Be specific per person — use the personality profiles. Neil: tell him the oyst
 
 ```bash
 go run tools/progress/main.go complete lesson_35_blockchain_wrapup
-go run tools/progress/main.go set complete complete
-go run tools/progress/main.go note "Curriculum complete. Project 4 done — all 4 projects shipped."
+go run tools/progress/main.go set project5 lesson_36_cli_design
+go run tools/progress/main.go note "Project 4 done. Moving to Project 5: CLI Portfolio Tracker."
 ```
 
 ---
 
-## No more commits — go build something real.
+## Next: Project 5 — CLI Portfolio Tracker

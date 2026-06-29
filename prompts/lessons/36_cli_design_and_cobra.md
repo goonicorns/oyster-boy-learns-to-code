@@ -97,18 +97,22 @@ Ask: "In `go run main.go`, what is `run`? What is `main.go`?" (subcommand, argum
 
 ---
 
-## Project setup
+## Project setup — TEACH this, don't do it for them
 
-```bash
-mkdir ~/projects/portfolio
-cd ~/projects/portfolio
-go mod init portfolio
-go get github.com/spf13/cobra
-```
+Do NOT show them the commands. Ask them first.
 
-"cobra is the standard. kubectl, Hugo, the GitHub CLI — all use cobra."
+"Okay, new project. You've done this before. What's the first command you run to start a Go project?"
+→ They should say `go mod init <name>`. If they forget, hint: "what file does every Go project need in its root?" → `go.mod` → "what creates it?"
 
-Structure:
+Walk them through:
+1. "Make a new directory for this project. What command?" (`mkdir ~/projects/portfolio && cd ~/projects/portfolio`)
+2. "Initialize the module. What's the command and what name do we use?" (`go mod init portfolio`)
+3. "We need cobra. How do you add an external package in Go?" (`go get github.com/spf13/cobra`)
+
+Then ask them to design the directory structure before you show it:
+"This is a CLI with subcommands: `show`, `add`, `config`. How would you organize the files?"
+
+Let them propose something. Then guide toward:
 ```
 portfolio/
   main.go
@@ -119,14 +123,13 @@ portfolio/
     config.go   — portfolio config
   internal/
     prices/     — price fetching
-    chain/      — ethereum client
     store/      — config file read/write
     display/    — table formatting
 ```
 
 Ask: "Why put commands in `cmd/`?" (convention — cobra apps almost always do this. Clean separation between the CLI layer and the business logic in `internal/`.)
-
-Ask: "What does `internal/` mean in Go?" (packages in `internal/` can only be imported by code in the parent directory — it prevents external packages from importing your implementation details. Compile-time enforcement.)
+Ask: "What does `internal/` mean in Go?" (packages in `internal/` can only be imported by code in the parent directory — prevents external packages from importing your implementation details. Compile-time enforcement.)
+Ask: "What is `main.go` responsible for in a cobra app?" (just calls `cmd.Execute()` — one line. All the real setup is in `cmd/root.go`.)
 
 ---
 

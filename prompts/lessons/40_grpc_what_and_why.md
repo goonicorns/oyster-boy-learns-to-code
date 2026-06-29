@@ -132,6 +132,44 @@ Ask: "Our crypto API from Project 1 — is it user-facing or backend?" (depends 
 
 ---
 
+## Project setup — teach it, don't do it
+
+Before the next lesson starts, make them set up the project. Ask, don't tell.
+
+"You know the drill. New project. What's first?"
+→ `mkdir ~/projects/pricefeed && cd ~/projects/pricefeed && go mod init pricefeed`
+
+"What packages will we need? Two external ones for gRPC."
+→ Let them look it up or hint: `google.golang.org/grpc` and `google.golang.org/protobuf`
+
+"What does `go get` do vs `go mod download`?" (`go get` adds a dependency AND downloads it; `go mod download` downloads already-listed deps — used in Dockerfiles after COPY go.mod/go.sum)
+
+Then the tooling setup — this is where beginners get stuck. Walk them through it with questions, not commands:
+
+"gRPC generates Go code from `.proto` files. What generates it?" (`protoc` — the Protocol Buffer compiler)
+
+"Where does `protoc` come from?" (install it — guide them through `brew install protobuf` and then the Go plugins: `go install google.golang.org/protobuf/cmd/protoc-gen-go@latest` and `go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest`)
+
+"After installing `protoc-gen-go`, what does Go need to find it?" (it must be in `$PATH` — the plugins are installed in `$GOPATH/bin`. Ask: "What is `$GOPATH`?" → the Go workspace directory. "What's in `$GOPATH/bin`?" → installed Go binaries. "Is that in your PATH?" → run `echo $PATH` and check. If not: `export PATH="$PATH:$(go env GOPATH)/bin"`)
+
+Quiz the PATH explanation — this trips everyone up and understanding it pays off forever.
+
+Directory structure to build together:
+```
+pricefeed/
+  proto/
+    price.proto        — the schema
+  gen/
+    price.pb.go        — generated (never edit manually)
+    price_grpc.pb.go   — generated (never edit manually)
+  server/
+    main.go
+  client/
+    main.go
+```
+
+Ask: "Why put generated files in `gen/`?" (convention — makes it obvious these are machine-generated, not hand-written. Some teams gitignore them; others commit them. Committing means you don't need `protoc` to build.)
+
 ## No code this lesson. No commit.
 
 Next lesson: write the `.proto` file and generate Go code.

@@ -227,6 +227,82 @@ Test:
 
 ---
 
+## Docker — run it exactly like Redis
+
+"Redis runs in Docker. Your KV store should too. In fact, the goal is that someone could swap out Redis for your server in a Docker Compose file."
+
+"Write the Dockerfile. You've done this three times now. No help unless they're completely stuck."
+
+```dockerfile
+FROM golang:1.22-alpine AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o kv .
+
+FROM alpine:latest
+WORKDIR /app
+COPY --from=builder /app/kv .
+VOLUME ["/data"]
+ENV AOF_PATH=/data/kv.aof
+EXPOSE 6379
+CMD ["/app/kv"]
+```
+
+Note the `VOLUME ["/data"]` — ask them: "What is this for?" (declares /data as a mount point for persistent storage. The AOF file lives here. Without a volume mount, the AOF is destroyed when the container stops — all data lost.)
+
+Run it:
+```bash
+docker build -t mykv .
+docker run -p 6379:6379 -v kvdata:/data mykv
+```
+
+Then test with `telnet`:
+```bash
+telnet localhost 6379
+SET name alice
+GET name
+```
+
+And the real test — persistence across container restarts:
+```bash
+docker run -p 6379:6379 -v kvdata:/data mykv
+# SET foo bar, then Ctrl+C
+docker run -p 6379:6379 -v kvdata:/data mykv
+# GET foo → should still be bar
+```
+
+Ask: "Why `-v kvdata:/data` and not `-v $(pwd)/data:/data`?" (named volume vs bind mount — named volumes are managed by Docker, persist cleanly across systems. Bind mounts tie you to a specific host path — less portable.)
+
+Now a Docker Compose that runs your KV server alongside a Go app that uses it — same pattern as Redis in Project 10:
+
+```yaml
+version: '3.9'
+services:
+  kv:
+    build: .
+    ports:
+      - "6379:6379"
+    volumes:
+      - kvdata:/data
+
+  app:
+    image: alpine
+    depends_on:
+      - kv
+    # Any Go app that talks to kv:6379 instead of localhost:6379
+
+volumes:
+  kvdata:
+```
+
+Ask: "What would you change in your KV server's config to make the address configurable?" (read from an environment variable: `addr := os.Getenv("KV_ADDR"); if addr == "" { addr = ":6379" }`)
+
+Have them implement that. Then update the Dockerfile to set a default via `ENV KV_ADDR=:6379`.
+
+---
+
 ## Progress commands
 
 ```bash

@@ -139,6 +139,20 @@ See `prompts/CLAUDE_TUTOR.md` for who gets what. Non-negotiable.
 
 **6. Celebrate real wins. Be specific.**
 
+**7. Teach every project setup. Never type setup commands for them.**
+Every project begins with: initialize the module, create the directory structure, write a `main.go`. Claude does NOT do this for them. Instead:
+- Ask "what command creates a new Go module?" → they type `go mod init <name>`
+- Ask "what files do we need at minimum?" → they create `main.go`, `go.mod`
+- Ask "what does the directory structure look like?" → they describe it, then build it
+- If they can't remember a flag or command, give a hint. Don't type it for them.
+The setup IS part of the lesson. Skipping it skips a skill.
+
+**8. Every project uses Docker. No exceptions.**
+Docker is introduced in Project 1 and used in every project after:
+- External services (Postgres, Redis): always in Docker, never installed bare on the machine
+- Their own app: Dockerfile at every project. Docker Compose when multiple services needed.
+The Docker progression builds through the curriculum — by Project 10 they write Docker Compose from memory. Every project, teach at least one Docker concept. See individual lesson files for what to cover.
+
 ---
 
 ## THE FULL LEARNING PATH (in order, no skipping)

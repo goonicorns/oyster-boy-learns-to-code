@@ -133,6 +133,48 @@ Ask: "What did `go build` produce? How is it different from `go run`?" (a compil
 
 ---
 
+## Docker — ship the CLI as a container
+
+"You can run this binary on any Mac. But what about Linux? A server? Someone else's machine with no Go installed? That's what Docker is for."
+
+"Write a Dockerfile for this CLI. What do you need?"
+
+Let them try. Guide toward:
+
+```dockerfile
+FROM golang:1.22-alpine AS builder
+
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o portfolio .
+
+FROM alpine:latest
+RUN apk add --no-cache ca-certificates
+COPY --from=builder /app/portfolio /usr/local/bin/portfolio
+ENTRYPOINT ["portfolio"]
+```
+
+Before showing each line, ask them:
+- "Why do we copy `go.mod` and `go.sum` BEFORE copying the rest of the code?" (Docker caches layer by layer — if go.mod hasn't changed, `go mod download` is skipped on the next build. This makes rebuilds fast.)
+- "Why `CGO_ENABLED=0 GOOS=linux`?" (cross-compile to a static Linux binary from Mac. `CGO_ENABLED=0` disables C dependencies so it runs in the minimal alpine image.)
+- "Why `FROM alpine:latest` as a second stage?" (multi-stage build — the final image only has the binary, not the Go compiler or source code. Much smaller.)
+- "What is `ENTRYPOINT` vs `CMD`?" (ENTRYPOINT: always runs, not replaceable. CMD: default args, replaceable. Using ENTRYPOINT means `docker run portfolio show` works — `portfolio` is the fixed command, `show` is the arg.)
+
+Build and run it:
+```bash
+docker build -t portfolio .
+docker run portfolio show --help
+docker run portfolio show --wallet 0xABC
+```
+
+Ask: "What happened to the config file?" (it's gone — the container has no access to your home directory. To persist config, mount a volume: `docker run -v ~/.config/portfolio:/root/.config/portfolio portfolio show`)
+
+Have them add the volume mount and verify config persists across `docker run` calls.
+
+---
+
 ## Final milestone quiz — no notes
 
 "Five questions. From memory. No notes. All of Project 5."

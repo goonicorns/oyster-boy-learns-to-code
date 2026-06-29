@@ -148,6 +148,75 @@ Give them a clear path forward:
 
 ---
 
+## Docker — containerize the API itself
+
+"You've been running Postgres in Docker. The API is still running with `go run`. Let's fix that — the whole thing should run with one command."
+
+"Write a Dockerfile for the API. What do you need?"
+
+Let them attempt it. Guide toward:
+
+```dockerfile
+FROM golang:1.22-alpine AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o cryptowatch .
+
+FROM alpine:latest
+RUN apk add --no-cache ca-certificates
+COPY --from=builder /app/cryptowatch /cryptowatch
+EXPOSE 8080
+CMD ["/cryptowatch"]
+```
+
+Ask every line they don't know — by now they've seen `docker run postgres` many times, but this is their first time writing a Dockerfile.
+
+Then update `docker-compose.yml` to include the app alongside Postgres:
+
+```yaml
+version: '3.9'
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: cryptowatch
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: cryptowatch
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgres://cryptowatch:secret@postgres:5432/cryptowatch?sslmode=disable
+      JWT_SECRET: change-me
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
+```
+
+Run it:
+```bash
+docker-compose up --build
+curl http://localhost:8080/health
+```
+
+Ask: "Before Docker Compose, what two commands did you need to run to start the project?" (`docker run postgres...` then `go run main.go`. Now it's just `docker-compose up`. One command for the whole stack.)
+
+Ask: "Why `DATABASE_URL: postgres://...@postgres:...` and not `@localhost:`?" (containers are on the same Docker Compose network — `postgres` is the service name, which resolves to the Postgres container's IP. `localhost` would refer to the app container itself.)
+
+Ask: "What does `depends_on: postgres` guarantee?" (the app container won't start until Postgres container is running — not until Postgres is *ready* to accept connections, just that it's started. For true readiness, you'd add a healthcheck.)
+
+---
+
 ## Final git state
 
 ```bash

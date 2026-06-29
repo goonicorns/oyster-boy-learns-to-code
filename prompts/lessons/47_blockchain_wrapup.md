@@ -92,6 +92,66 @@ Blockchain concepts:
 
 ---
 
+## Docker — run the blockchain node like a real node
+
+"Real blockchain nodes run in Docker. You spin one up, expose the API port, and other services connect to it. Let's do that."
+
+"Write the Dockerfile. You've done this twice. Minimal prompting."
+
+Expected output (let them write it — hint only if stuck):
+```dockerfile
+FROM golang:1.22-alpine AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o blockchain .
+
+FROM alpine:latest
+COPY --from=builder /app/blockchain /blockchain
+EXPOSE 8080
+CMD ["/blockchain"]
+```
+
+Build and run it:
+```bash
+docker build -t blockchain .
+docker run -p 8080:8080 blockchain
+```
+
+Then from another terminal:
+```bash
+# Mine a block
+curl -X POST http://localhost:8080/mine
+
+# Check the chain
+curl http://localhost:8080/chain | jq .
+```
+
+Ask: "If you run TWO blockchain containers, do they share state?" (no — each container is its own isolated process with its own in-memory chain. That's why real blockchains need P2P networking — to sync state across nodes. We skipped that, which is why we have one node.)
+
+Ask: "What happens to the blockchain data if you stop the container?" (it's gone — the chain is in-memory. How would you fix that?) → AOF persistence from Project 8, or a database. They'll do exactly this in Project 8.
+
+Ask: "What would a `docker-compose.yml` look like that runs two blockchain nodes?" (two services, both running the same image, different ports — they can't actually sync without P2P but it illustrates horizontal scaling)
+
+Have them write the two-node compose file:
+```yaml
+version: '3.9'
+services:
+  node1:
+    build: .
+    ports:
+      - "8080:8080"
+  node2:
+    build: .
+    ports:
+      - "8081:8080"
+```
+
+"This is what Ethereum node operators run — except they're on the same P2P network and actually sync."
+
+---
+
 ## Progress commands
 
 ```bash

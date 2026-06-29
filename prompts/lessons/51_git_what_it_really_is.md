@@ -150,4 +150,35 @@ Commands:
 
 ---
 
+## Project setup — teach it
+
+"New project. You know the steps by now. No help unless you ask."
+
+Walk through with questions only — they should be getting this from memory by Project 9:
+1. `mkdir ~/projects/minigit && cd ~/projects/minigit && go mod init minigit`
+2. No external deps? "What do we need?" (crypto/sha1, os, path/filepath, encoding/json, fmt — all stdlib)
+
+Ask them to design the directory structure from the description of commands above:
+```
+minigit/
+  main.go
+  cmd/
+    init.go       — minigit init
+    add.go        — minigit add
+    commit.go     — minigit commit
+    log.go        — minigit log
+    status.go     — minigit status
+  internal/
+    object/
+      object.go   — write/read blob, tree, commit objects
+    index/
+      index.go    — staging area (read/write .minigit/index)
+    refs/
+      refs.go     — HEAD, branch refs
+```
+
+Ask: "We've done cobra before. What file is always the entry point for cobra?" (`cmd/root.go` — the root command. Have them write it first: `rootCmd`, `Execute()`, then register subcommands.)
+
+Ask: "Where do we store the minigit database?" (`.minigit/` in the current directory — same as `.git/`. Inside: `objects/`, `index`, `HEAD`)
+
 ## No code this lesson. No commit.

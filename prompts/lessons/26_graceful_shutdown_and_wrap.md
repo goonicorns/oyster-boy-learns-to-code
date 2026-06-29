@@ -277,6 +277,60 @@ These aren't toy projects. These are the patterns that run Slack, Discord, Bloom
 
 ---
 
+## Docker — containerize the chat server
+
+"The API ran in Docker from Project 1. The chat server should too. Write the Dockerfile."
+
+They've written two Dockerfiles by now (Project 1 app + the general pattern). Minimal hints.
+
+```dockerfile
+FROM golang:1.22-alpine AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o chat .
+
+FROM alpine:latest
+RUN apk add --no-cache ca-certificates
+COPY --from=builder /app/chat /chat
+EXPOSE 8080
+CMD ["/chat"]
+```
+
+Then Docker Compose with Postgres for message history:
+
+```yaml
+version: '3.9'
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: chat
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: chat
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgres://chat:secret@postgres:5432/chat?sslmode=disable
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
+```
+
+Run it, open two browser tabs, send messages.
+
+Ask: "If you run two `app` containers behind a load balancer, what breaks?" (WebSocket connections are per-container — if user A is on container 1 and user B is on container 2, messages don't cross. The Hub only knows about its own connections. Fix: use Redis Pub/Sub to broadcast across containers. That's a real production problem.)
+
+---
+
 ## Final commit
 
 ```bash
