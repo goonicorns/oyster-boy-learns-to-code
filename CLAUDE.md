@@ -33,7 +33,7 @@ emacs --version
 
 If the progress report shows a name (e.g. "Learner: neil"), you already know who you're talking to. Use it. Don't ask again.
 
-If the name is NOT SET, then ask: "Who am I talking to — Neil, Sim, Gaffor, or Nate?" — then IMMEDIATELY run:
+If the name is NOT SET, then ask: "Who am I talking to — Neil, Sim, Gaffor, Nate, Fazrul, Irsyad, Haresh, or Eli?" — then IMMEDIATELY run:
 ```bash
 go run tools/progress/main.go setname <name>
 ```
@@ -68,7 +68,8 @@ Do this THE MOMENT you tell them what you're starting, not at the end.
 ```
 Steps:
   cheatsheet | shell_tour | emacs_tour | emacs_config
-  go_exercises | project1 | project2 | project3 | complete
+  go_exercises | project1 | project2 | project3 | project4
+  project5 | project6 | project7 | project8 | project9 | project10 | complete
 
 Lesson examples:
   emacs_01_init_file    emacs_02_modifier_keys    emacs_03_ui_cleanup
@@ -76,6 +77,7 @@ Lesson examples:
   emacs_07_modeline     emacs_08_go_mode
   exercise_00_hello     exercise_05_for_loops
   lesson_01_setup       lesson_07_crud
+  lesson_36_cli_design  lesson_54_blog_overview   lesson_57_job_queue
 ```
 
 ### When a lesson is finished and they've passed the checkpoint quiz:
@@ -201,15 +203,94 @@ Set: `go run tools/progress/main.go set project3 lesson_18_websockets`
 Set: `go run tools/progress/main.go set project4 lesson_27_blockchain_mental_model`
 
 ```
-prompts/lessons/27_blockchain_mental_model.md    → set project4 lesson_27_blockchain_mental_model
+prompts/lessons/27_blockchain_mental_model.md     → set project4 lesson_27_blockchain_mental_model
 prompts/lessons/28_project_setup_and_ethclient.md → set project4 lesson_28_ethclient
-prompts/lessons/29_reading_transactions.md        → set project4 lesson_29_transactions
-prompts/lessons/30_smart_contracts_and_abi.md     → set project4 lesson_30_abi
-prompts/lessons/31_abigen.md                      → set project4 lesson_31_abigen
-prompts/lessons/32_events_and_logs.md             → set project4 lesson_32_events
-prompts/lessons/33_sending_transactions.md        → set project4 lesson_33_sending
-prompts/lessons/34_deploy_and_interact.md         → set project4 lesson_34_deploy
-prompts/lessons/35_blockchain_wrapup.md           → set complete complete
+prompts/lessons/29_reading_transactions.md         → set project4 lesson_29_transactions
+prompts/lessons/30_smart_contracts_and_abi.md      → set project4 lesson_30_abi
+prompts/lessons/31_abigen.md                       → set project4 lesson_31_abigen
+prompts/lessons/32_events_and_logs.md              → set project4 lesson_32_events
+prompts/lessons/33_sending_transactions.md         → set project4 lesson_33_sending
+prompts/lessons/34_deploy_and_interact.md          → set project4 lesson_34_deploy
+prompts/lessons/35_blockchain_wrapup.md            → complete lesson_35_blockchain_wrapup
+```
+
+### Step 7: Project 5 — CLI Portfolio Tracker (lessons 36–39)
+Set: `go run tools/progress/main.go set project5 lesson_36_cli_design`
+
+```
+prompts/lessons/36_cli_design_and_cobra.md → set project5 lesson_36_cli_design
+prompts/lessons/37_http_client.md          → set project5 lesson_37_http_client
+prompts/lessons/38_config_and_display.md   → set project5 lesson_38_config_display
+prompts/lessons/39_cli_wrapup.md           → complete lesson_39_cli_wrapup
+```
+
+### Step 8: Project 6 — gRPC Price Feed (lessons 40–43)
+Set: `go run tools/progress/main.go set project6 lesson_40_grpc_intro`
+
+```
+prompts/lessons/40_grpc_what_and_why.md        → set project6 lesson_40_grpc_intro
+prompts/lessons/41_protobuf_and_codegen.md     → set project6 lesson_41_protobuf
+prompts/lessons/42_grpc_server_and_client.md   → set project6 lesson_42_grpc_server
+prompts/lessons/43_grpc_wrapup.md              → complete lesson_43_grpc_wrapup
+```
+
+### Step 9: Project 7 — Baby Blockchain in Go (lessons 44–47)
+Set: `go run tools/progress/main.go set project7 lesson_44_blockchain_model`
+
+```
+prompts/lessons/44_baby_blockchain_model.md    → set project7 lesson_44_blockchain_model
+prompts/lessons/45_blocks_and_mining.md        → set project7 lesson_45_blocks_mining
+prompts/lessons/46_wallets_and_blockchain_api.md → set project7 lesson_46_wallets_api
+prompts/lessons/47_blockchain_wrapup.md        → complete lesson_47_blockchain_wrapup
+```
+
+### Step 10: Project 8 — Key-Value Store (lessons 48–50)
+Set: `go run tools/progress/main.go set project8 lesson_48_kv_intro`
+
+```
+prompts/lessons/48_kv_what_are_we_building.md  → set project8 lesson_48_kv_intro
+prompts/lessons/49_tcp_server_and_store.md     → set project8 lesson_49_tcp_store
+prompts/lessons/50_persistence_and_kv_wrapup.md → complete lesson_50_kv_wrapup
+```
+
+### Step 11: Project 9 — Baby Git in Go (lessons 51–53)
+Set: `go run tools/progress/main.go set project9 lesson_51_git_intro`
+
+```
+prompts/lessons/51_git_what_it_really_is.md    → set project9 lesson_51_git_intro
+prompts/lessons/52_git_objects_and_index.md    → set project9 lesson_52_git_objects
+prompts/lessons/53_git_log_status_wrapup.md    → complete lesson_53_git_wrapup
+```
+
+### Step 12: Project 10 — Blog Platform (lessons 54–62)
+Set: `go run tools/progress/main.go set project10 lesson_54_blog_overview`
+
+```
+prompts/lessons/54_blog_overview_and_docker.md → set project10 lesson_54_blog_overview
+prompts/lessons/55_blog_schema_and_migrations.md → set project10 lesson_55_schema
+prompts/lessons/56_blog_posts_and_auth.md      → set project10 lesson_56_posts_auth
+prompts/lessons/57_postgres_job_queue.md       → set project10 lesson_57_job_queue
+prompts/lessons/58_redis_caching.md            → set project10 lesson_58_redis
+prompts/lessons/59_image_uploads.md            → set project10 lesson_59_uploads
+prompts/lessons/60_fulltext_search.md          → set project10 lesson_60_search
+prompts/lessons/61_comments_and_tags.md        → set project10 lesson_61_comments_tags
+prompts/lessons/62_blog_wrapup_and_graduation.md → complete lesson_62_blog_wrapup
+                                               → set complete complete
+```
+
+---
+
+## SKIP-EMACS PATHS
+
+**Fazrul** — after shell tour, skip directly to Go exercises. Do NOT do emacs_tour or emacs_config.
+```bash
+go run tools/progress/main.go complete shell_tour
+go run tools/progress/main.go set go_exercises exercise_00_hello
+```
+
+**Irsyad** — skip shell tour AND emacs. Start at Go exercises. He's a programmer, move fast.
+```bash
+go run tools/progress/main.go set go_exercises exercise_00_hello
 ```
 
 ---

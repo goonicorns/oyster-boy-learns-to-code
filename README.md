@@ -34,12 +34,14 @@ Check it worked:
 go version
 ```
 
-### 4. Emacs
+### 4. Emacs (skip this if Claude tells you to)
 In your terminal:
 ```bash
 brew install --cask emacs
 ```
 Don't have `brew`? Install it first from [brew.sh](https://brew.sh) — copy the command on their homepage and run it.
+
+> Some learners skip the Emacs section entirely. Claude will tell you whether you need it.
 
 ---
 
@@ -75,10 +77,31 @@ That's it. You're in.
 
 ## What you'll build
 
-Three real things, built step by step:
+Ten real things, built step by step:
 
-1. A **web API** that tracks crypto prices, stores them in a database, and has user login
-2. A **technical analysis engine** that computes price indicators on top of that API
-3. A **real-time chat server** — open two browser tabs and watch messages appear live
+1. A **crypto price API** — HTTP server, Postgres database, user login with JWT
+2. A **technical analysis engine** — EMA, SMA, price indicators
+3. A **real-time chat server** — WebSockets, live messages across browser tabs
+4. An **Ethereum client** — read the blockchain, interact with smart contracts, sign transactions
+5. A **CLI portfolio tracker** — command-line tool, cobra, live price fetching
+6. A **gRPC price feed** — Protocol Buffers, streaming data to multiple clients
+7. A **blockchain** — proof-of-work, SHA-256, ECDSA wallets, REST API — all from scratch in Go
+8. A **key-value store** — raw TCP server, TTL expiry, append-only persistence
+9. **Baby Git** — content-addressing, object store, staging area, commit graph — real git internals
+10. A **full blog platform** — Docker Compose, Postgres, Redis, full-text search, file uploads, background job queue
 
-You'll understand every piece of all three by the time you're done.
+You'll understand every piece of all ten by the time you're done.
+
+---
+
+## What you'll learn along the way
+
+- Go: types, interfaces, goroutines, channels, errors, the whole language
+- Shell and terminal fluency
+- Emacs (configured from scratch)
+- Databases: Postgres — schema design, migrations, transactions, full-text search
+- Networking: HTTP, WebSockets, gRPC, raw TCP
+- Cryptography: SHA-256, ECDSA, JWT
+- Docker: containers, Docker Compose, multi-stage builds
+- Redis: caching, cache invalidation, sorted sets
+- Concurrency: goroutines, channels, mutexes — for real

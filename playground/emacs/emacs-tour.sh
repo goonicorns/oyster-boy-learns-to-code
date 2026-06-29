@@ -80,19 +80,18 @@ check_emacs() {
     fi
 }
 
-# --- Open practice file in Emacs ----------------------------------------------
-open_practice_file() {
+# --- Show the command to open a file — student must type it themselves --------
+show_open_command() {
     local file="$1"
-    # Try to open GUI emacs; fall back to terminal emacs
-    if open -a Emacs "$file" 2>/dev/null; then
-        ok "Opened $file in Emacs (GUI)"
-    elif command -v emacsclient &>/dev/null && emacsclient -n "$file" 2>/dev/null; then
-        ok "Opened $file via emacsclient"
-    else
-        emacs "$file" &
-        ok "Opened $file in Emacs"
-    fi
-    sleep 1
+    echo ""
+    echo -e "  ${BOLD}Open this file in Emacs now. Type this command:${RESET}"
+    echo ""
+    echo -e "  ${CYAN}${BOLD}  emacs $file${RESET}"
+    echo ""
+    echo -e "  (Or: open Emacs, then press ${BOLD}C-x C-f${RESET} and navigate to the path above)"
+    echo ""
+    echo -e "  ${DIM}Press Enter once Emacs is open with the file...${RESET}"
+    read -r
 }
 
 # =============================================================================
@@ -219,10 +218,9 @@ lesson_navigation() {
 
     header "Lesson 2: Navigation — Moving Without a Mouse"
 
-    info "Opening your practice file in Emacs..."
-    open_practice_file "$practice_file"
+    show_open_command "$practice_file"
     echo ""
-    info "You'll see a file called practice.txt open in Emacs."
+    info "You should now have practice.txt open in Emacs."
     info "Put your hands on the keyboard. No mouse for this lesson."
     echo ""
     confirm

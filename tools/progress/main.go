@@ -88,8 +88,14 @@ func stepLabel(step string) string {
 		"project1":     "Step 3 — Project 1: Crypto API",
 		"project2":     "Step 4 — Project 2: Technical Analysis",
 		"project3":     "Step 5 — Project 3: Chat Server",
-		"project4":     "Step 6 — Project 4: Ethereum & Smart Contracts",
-		"complete":     "ALL DONE",
+		"project4":  "Step 6 — Project 4: Ethereum & Smart Contracts",
+		"project5":  "Step 7 — Project 5: CLI Portfolio Tracker",
+		"project6":  "Step 8 — Project 6: gRPC Price Feed",
+		"project7":  "Step 9 — Project 7: Baby Blockchain in Go",
+		"project8":  "Step 10 — Project 8: Key-Value Store",
+		"project9":  "Step 11 — Project 9: Baby Git in Go",
+		"project10": "Step 12 — Project 10: Blog Platform (Docker + Postgres + Redis)",
+		"complete":  "ALL DONE 🎓",
 	}
 	if l, ok := labels[step]; ok {
 		return l
@@ -140,8 +146,38 @@ func whatNext(p *Progress) string {
 			return "Start Project 4 — read prompts/lessons/27_blockchain_mental_model.md"
 		}
 		return "Continue Project 4 at: " + p.CurrentLesson
+	case "project5":
+		if p.CurrentLesson == "" {
+			return "Start Project 5 — read prompts/lessons/36_cli_design_and_cobra.md"
+		}
+		return "Continue Project 5 at: " + p.CurrentLesson
+	case "project6":
+		if p.CurrentLesson == "" {
+			return "Start Project 6 — read prompts/lessons/40_grpc_what_and_why.md"
+		}
+		return "Continue Project 6 at: " + p.CurrentLesson
+	case "project7":
+		if p.CurrentLesson == "" {
+			return "Start Project 7 — read prompts/lessons/44_baby_blockchain_model.md"
+		}
+		return "Continue Project 7 at: " + p.CurrentLesson
+	case "project8":
+		if p.CurrentLesson == "" {
+			return "Start Project 8 — read prompts/lessons/48_kv_what_are_we_building.md"
+		}
+		return "Continue Project 8 at: " + p.CurrentLesson
+	case "project9":
+		if p.CurrentLesson == "" {
+			return "Start Project 9 — read prompts/lessons/51_git_what_it_really_is.md"
+		}
+		return "Continue Project 9 at: " + p.CurrentLesson
+	case "project10":
+		if p.CurrentLesson == "" {
+			return "Start Project 10 — read prompts/lessons/54_blog_overview_and_docker.md"
+		}
+		return "Continue Project 10 at: " + p.CurrentLesson
 	case "complete":
-		return "Curriculum complete. Time to build their own things."
+		return "Curriculum complete. All 10 projects done. Go build something real."
 	}
 	return p.CurrentStep + " / " + p.CurrentLesson
 }
